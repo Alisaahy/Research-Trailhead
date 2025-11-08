@@ -104,36 +104,6 @@
             color: var(--primary-color);
         }
 
-        .btn-profile {
-            background: var(--primary-color);
-            color: white;
-            padding: 0.5rem 1.5rem;
-            border-radius: 8px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .btn-profile:hover {
-            background: var(--primary-dark);
-        }
-
-        /* Screen Container */
-        .screen {
-            display: none;
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         /* Card Styles */
         .card {
             background: white;
@@ -143,71 +113,27 @@
             margin: 2rem 0;
         }
 
-        /* Profile Creation Screen */
-        .profile-screen {
-            max-width: 800px;
-            margin: 3rem auto;
-        }
-
-        .profile-header {
+        .section-header {
             text-align: center;
-            margin-bottom: 2rem;
+            color: white;
+            margin: 3rem 0 2rem;
         }
 
-        .profile-header h1 {
+        .section-header h1 {
             font-size: 2.5rem;
-            color: white;
             margin-bottom: 0.5rem;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
-        .profile-header p {
+        .section-header p {
             font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.9);
+            opacity: 0.95;
         }
 
-        .profile-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .profile-option {
-            padding: 2rem;
-            border: 3px solid var(--gray-200);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-            background: white;
-        }
-
-        .profile-option:hover {
-            border-color: var(--primary-color);
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .profile-option.selected {
-            border-color: var(--primary-color);
-            background: #eff6ff;
-        }
-
-        .profile-option-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .profile-option h3 {
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
-            color: var(--gray-800);
-        }
-
-        .profile-option p {
-            color: var(--gray-600);
-            font-size: 0.95rem;
+        /* Profile Section */
+        .profile-section {
+            max-width: 800px;
+            margin: 0 auto;
         }
 
         .form-group {
@@ -222,7 +148,8 @@
         }
 
         .form-group input,
-        .form-group textarea {
+        .form-group textarea,
+        .form-group select {
             width: 100%;
             padding: 0.75rem;
             border: 2px solid var(--gray-300);
@@ -233,7 +160,8 @@
         }
 
         .form-group input:focus,
-        .form-group textarea:focus {
+        .form-group textarea:focus,
+        .form-group select:focus {
             outline: none;
             border-color: var(--primary-color);
         }
@@ -252,27 +180,10 @@
             flex: 1;
         }
 
-        /* Upload Screen */
-        .upload-screen {
+        /* Upload Section */
+        .upload-section {
             max-width: 900px;
-            margin: 3rem auto;
-        }
-
-        .hero {
-            text-align: center;
-            color: white;
-            margin-bottom: 3rem;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .hero p {
-            font-size: 1.3rem;
-            opacity: 0.95;
+            margin: 0 auto;
         }
 
         .upload-zone {
@@ -282,13 +193,13 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
-            background: rgba(255, 255, 255, 0.05);
+            background: white;
             margin-bottom: 2rem;
         }
 
         .upload-zone:hover {
             border-color: var(--primary-color);
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--gray-50);
         }
 
         .upload-zone.dragover {
@@ -369,10 +280,10 @@
             color: var(--gray-600);
         }
 
-        /* Topic Selection Screen */
-        .topic-selection-screen {
+        /* Topic Selection */
+        .topic-section {
             max-width: 1000px;
-            margin: 2rem auto;
+            margin: 0 auto;
         }
 
         .topic-search {
@@ -452,10 +363,15 @@
             border-color: var(--primary-color);
         }
 
-        /* Processing Screen */
-        .processing-screen {
+        /* Processing Section */
+        .processing-section {
             max-width: 700px;
-            margin: 5rem auto;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .processing-section.active {
+            display: block;
         }
 
         .processing-animation {
@@ -485,14 +401,13 @@
             padding: 1.5rem;
             border-left: 4px solid var(--gray-300);
             margin-bottom: 1rem;
-            position: relative;
-            background: rgba(255, 255, 255, 0.05);
+            background: white;
             border-radius: 8px;
         }
 
         .processing-step.active {
             border-left-color: var(--primary-color);
-            background: rgba(255, 255, 255, 0.1);
+            background: #eff6ff;
         }
 
         .processing-step.completed {
@@ -501,13 +416,13 @@
         }
 
         .processing-step h4 {
-            color: white;
+            color: var(--gray-800);
             margin-bottom: 0.5rem;
             font-size: 1.1rem;
         }
 
         .processing-step p {
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--gray-600);
             font-size: 0.95rem;
         }
 
@@ -524,12 +439,18 @@
             height: 100%;
             background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
             transition: width 0.5s;
+            width: 0%;
         }
 
-        /* Results Dashboard */
-        .results-screen {
+        /* Results Section */
+        .results-section {
             max-width: 1200px;
-            margin: 2rem auto;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .results-section.active {
+            display: block;
         }
 
         .paper-summary {
@@ -561,20 +482,14 @@
         }
 
         .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            text-align: center;
             margin-bottom: 2rem;
         }
 
         .results-header h2 {
             color: white;
             font-size: 2rem;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
+            margin-bottom: 1rem;
         }
 
         .idea-cards {
@@ -587,7 +502,6 @@
             border-radius: 16px;
             padding: 2rem;
             box-shadow: var(--shadow-lg);
-            cursor: pointer;
             transition: all 0.3s;
             position: relative;
             overflow: hidden;
@@ -726,141 +640,6 @@
             font-size: 0.9rem;
         }
 
-        /* Idea Detail Screen */
-        .idea-detail-screen {
-            max-width: 1200px;
-            margin: 2rem auto;
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            gap: 2rem;
-        }
-
-        .detail-sidebar {
-            position: sticky;
-            top: 100px;
-            height: fit-content;
-        }
-
-        .sidebar-nav {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow-md);
-        }
-
-        .sidebar-nav h4 {
-            font-size: 0.9rem;
-            color: var(--gray-600);
-            margin-bottom: 1rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .sidebar-nav a {
-            display: block;
-            padding: 0.75rem;
-            color: var(--gray-700);
-            text-decoration: none;
-            border-radius: 6px;
-            margin-bottom: 0.25rem;
-            transition: all 0.3s;
-            font-size: 0.95rem;
-        }
-
-        .sidebar-nav a:hover,
-        .sidebar-nav a.active {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .detail-content {
-            background: white;
-            border-radius: 16px;
-            padding: 3rem;
-            box-shadow: var(--shadow-lg);
-        }
-
-        .detail-content section {
-            margin-bottom: 3rem;
-        }
-
-        .detail-content h2 {
-            font-size: 2rem;
-            color: var(--gray-800);
-            margin-bottom: 1.5rem;
-        }
-
-        .detail-content h3 {
-            font-size: 1.5rem;
-            color: var(--gray-800);
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 3px solid var(--primary-color);
-        }
-
-        .literature-item {
-            padding: 1.5rem;
-            background: var(--gray-50);
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .literature-item h4 {
-            color: var(--gray-800);
-            margin-bottom: 0.5rem;
-            font-size: 1.1rem;
-        }
-
-        .literature-item .authors {
-            color: var(--gray-600);
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .literature-item .summary {
-            color: var(--gray-700);
-            line-height: 1.6;
-        }
-
-        .approach-steps {
-            counter-reset: step-counter;
-        }
-
-        .approach-step {
-            padding-left: 3rem;
-            position: relative;
-            margin-bottom: 1.5rem;
-        }
-
-        .approach-step::before {
-            counter-increment: step-counter;
-            content: counter(step-counter);
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 35px;
-            height: 35px;
-            background: var(--primary-color);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-        }
-
-        .approach-step h4 {
-            font-size: 1.1rem;
-            color: var(--gray-800);
-            margin-bottom: 0.5rem;
-        }
-
-        .approach-step p {
-            color: var(--gray-600);
-            line-height: 1.6;
-        }
-
         /* Buttons */
         .btn {
             padding: 0.75rem 1.5rem;
@@ -886,6 +665,12 @@
             box-shadow: var(--shadow-md);
         }
 
+        .btn-primary:disabled {
+            background: var(--gray-400);
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .btn-secondary {
             background: white;
             color: var(--primary-color);
@@ -907,13 +692,14 @@
             justify-content: center;
         }
 
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .how-it-works {
-                grid-template-columns: 1fr;
-            }
-
-            .profile-options {
                 grid-template-columns: 1fr;
             }
 
@@ -924,35 +710,11 @@
             .idea-scores {
                 grid-template-columns: 1fr;
             }
-
-            .idea-detail-screen {
-                grid-template-columns: 1fr;
-            }
-
-            .detail-sidebar {
-                position: static;
-            }
         }
 
-        /* Animations */
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-slide-in {
-            animation: slideInUp 0.6s ease-out;
-        }
-
-        /* Hidden class */
-        .hidden {
-            display: none !important;
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
         }
     </style>
 </head>
@@ -965,46 +727,44 @@
                 <span>Research Discovery</span>
             </div>
             <nav>
-                <a href="#" onclick="showScreen('upload')">New Analysis</a>
-                <a href="#">My Projects</a>
-                <a href="#">About</a>
-                <button class="btn-profile" onclick="showScreen('profile')">Profile</button>
+                <a href="#profile">Profile</a>
+                <a href="#upload">Upload Paper</a>
+                <a href="#topics">Topics</a>
+                <a href="#results">Results</a>
             </nav>
         </div>
     </header>
 
     <div class="container">
-        <!-- Profile Creation Screen -->
-        <div id="profile-screen" class="screen active">
-            <div class="profile-screen">
-                <div class="profile-header">
-                    <h1>Create Your Research Profile</h1>
-                    <p>Help us personalize research ideas for you</p>
-                </div>
+        <!-- Profile Section -->
+        <section id="profile">
+            <div class="section-header">
+                <h1>Create Your Research Profile</h1>
+                <p>Help us personalize research ideas for you</p>
+            </div>
 
+            <div class="profile-section">
                 <div class="card">
-                    <div class="profile-options">
-                        <div class="profile-option" onclick="selectProfileMethod('manual')">
-                            <div class="profile-option-icon">✍️</div>
-                            <h3>Manual Entry</h3>
-                            <p>Describe your expertise and interests</p>
+                    <form id="profile-form">
+                        <div class="form-group">
+                            <label>Profile Method *</label>
+                            <select id="profile-method" onchange="toggleProfileMethod()">
+                                <option value="">Select how to create your profile</option>
+                                <option value="manual">Manual Entry - Describe your expertise</option>
+                                <option value="scholar">Google Scholar - Import your academic profile</option>
+                            </select>
                         </div>
-                        <div class="profile-option" onclick="selectProfileMethod('scholar')">
-                            <div class="profile-option-icon">🎓</div>
-                            <h3>Google Scholar</h3>
-                            <p>Import from your academic profile</p>
-                        </div>
-                    </div>
 
-                    <div id="manual-form" class="hidden">
-                        <form onsubmit="createProfile(event)">
+                        <!-- Manual Entry Form -->
+                        <div id="manual-fields" class="hidden">
                             <div class="form-group">
                                 <label>Research Areas *</label>
-                                <input type="text" placeholder="e.g., Machine Learning, Computer Vision, NLP" required>
+                                <input type="text" id="research-areas" placeholder="e.g., Machine Learning, Computer Vision, NLP">
                             </div>
                             <div class="form-group">
-                                <label>Expertise Level</label>
-                                <select style="width: 100%; padding: 0.75rem; border: 2px solid var(--gray-300); border-radius: 8px; font-size: 1rem;">
+                                <label>Expertise Level *</label>
+                                <select id="expertise-level">
+                                    <option value="">Select your level</option>
                                     <option>PhD Student</option>
                                     <option>Early Career Researcher</option>
                                     <option>Postdoc</option>
@@ -1014,42 +774,44 @@
                             </div>
                             <div class="form-group">
                                 <label>Technical Skills</label>
-                                <input type="text" placeholder="e.g., Python, PyTorch, Statistical Analysis">
+                                <input type="text" id="skills" placeholder="e.g., Python, PyTorch, Statistical Analysis">
                             </div>
                             <div class="form-group">
                                 <label>Research Interests</label>
-                                <textarea placeholder="Describe what topics excite you and what problems you'd like to solve..."></textarea>
+                                <textarea id="interests" placeholder="Describe what topics excite you and what problems you'd like to solve..."></textarea>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-large btn-block">Create Profile & Continue</button>
-                        </form>
-                    </div>
+                        </div>
 
-                    <div id="scholar-form" class="hidden">
-                        <form onsubmit="importScholar(event)">
+                        <!-- Google Scholar Form -->
+                        <div id="scholar-fields" class="hidden">
                             <div class="form-group">
                                 <label>Google Scholar Profile URL *</label>
                                 <div class="google-scholar-input">
-                                    <input type="url" placeholder="https://scholar.google.com/citations?user=..." required>
-                                    <button type="submit" class="btn btn-primary">Import</button>
+                                    <input type="url" id="scholar-url" placeholder="https://scholar.google.com/citations?user=...">
+                                    <button type="button" class="btn btn-primary" onclick="importScholar()">Import</button>
                                 </div>
                                 <p style="font-size: 0.9rem; color: var(--gray-600); margin-top: 0.5rem;">
                                     We'll analyze your publications to understand your expertise
                                 </p>
                             </div>
-                        </form>
-                    </div>
+                        </div>
+
+                        <button type="button" class="btn btn-primary btn-large btn-block" onclick="saveProfile()" id="save-profile-btn" disabled>
+                            Save Profile & Continue
+                        </button>
+                    </form>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Upload Screen -->
-        <div id="upload-screen" class="screen">
-            <div class="upload-screen">
-                <div class="hero">
-                    <h1>Discover Your Next Research Direction</h1>
-                    <p>Upload a paper and get personalized, actionable research ideas</p>
-                </div>
+        <!-- Upload Section -->
+        <section id="upload">
+            <div class="section-header">
+                <h1>Upload Your Paper</h1>
+                <p>Share a research paper you find interesting</p>
+            </div>
 
+            <div class="upload-section">
                 <div class="card">
                     <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
                         <div class="upload-icon">📄</div>
@@ -1062,10 +824,9 @@
                         </div>
                     </div>
 
-                    <div id="file-info" class="hidden" style="padding: 1.5rem; background: var(--gray-50); border-radius: 12px; margin-top: 1rem;">
+                    <div id="file-info" class="hidden" style="padding: 1.5rem; background: var(--gray-50); border-radius: 12px;">
                         <h4 style="margin-bottom: 0.5rem;">Selected File:</h4>
                         <p id="file-name" style="color: var(--gray-700);"></p>
-                        <button class="btn btn-primary btn-large btn-block" style="margin-top: 1rem;" onclick="showScreen('topics')">Continue to Topic Selection</button>
                     </div>
                 </div>
 
@@ -1092,15 +853,17 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Topic Selection Screen -->
-        <div id="topics-screen" class="screen">
-            <div class="topic-selection-screen">
+        <!-- Topic Selection Section -->
+        <section id="topics">
+            <div class="section-header">
+                <h1>Select Research Topics</h1>
+                <p>Choose topics that interest you (1-5 topics)</p>
+            </div>
+
+            <div class="topic-section">
                 <div class="card">
-                    <h2 style="margin-bottom: 1.5rem;">Select Research Topics</h2>
-                    <p style="color: var(--gray-600); margin-bottom: 2rem;">Choose topics that interest you (1-5 topics)</p>
-
                     <div class="topic-search">
                         <input type="text" placeholder="🔍 Search topics..." onkeyup="filterTopics(event)">
                     </div>
@@ -1118,20 +881,23 @@
                     </button>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Processing Screen -->
-        <div id="processing-screen" class="screen">
-            <div class="processing-screen">
+        <!-- Processing Section -->
+        <section id="processing">
+            <div class="processing-section" id="processing-container">
+                <div class="section-header">
+                    <h1>Analyzing Your Paper</h1>
+                    <p>This will take 1-2 minutes</p>
+                </div>
+
                 <div class="card">
                     <div class="processing-animation">
                         <div class="spinner"></div>
-                        <h2 style="color: white; margin-bottom: 0.5rem;">Analyzing Your Paper</h2>
-                        <p style="color: rgba(255, 255, 255, 0.8);">This will take 1-2 minutes</p>
                     </div>
 
                     <div class="progress-bar">
-                        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                        <div class="progress-fill" id="progress-fill"></div>
                     </div>
 
                     <div class="processing-steps">
@@ -1150,11 +916,11 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Results Dashboard -->
-        <div id="results-screen" class="screen">
-            <div class="results-screen">
+        <!-- Results Section -->
+        <section id="results">
+            <div class="results-section" id="results-container">
                 <div class="paper-summary">
                     <h2>Attention Is All You Need</h2>
                     <div class="paper-meta">
@@ -1169,15 +935,11 @@
 
                 <div class="results-header">
                     <h2>Your Personalized Research Ideas</h2>
-                    <div class="action-buttons">
-                        <button class="btn btn-secondary">Export All</button>
-                        <button class="btn btn-primary">Start New Analysis</button>
-                    </div>
                 </div>
 
                 <div class="idea-cards">
                     <!-- Idea Card 1 -->
-                    <div class="idea-card animate-slide-in" onclick="showIdeaDetail(1)">
+                    <div class="idea-card">
                         <div class="idea-rank">1</div>
                         <h3>Efficient Transformers for Mobile Devices</h3>
                         <p class="idea-pitch">
@@ -1217,14 +979,12 @@
                                 <span>•</span>
                                 <span>🎯 Intermediate</span>
                             </div>
-                            <button class="btn btn-primary" onclick="event.stopPropagation(); showIdeaDetail(1)">
-                                View Details →
-                            </button>
+                            <button class="btn btn-primary">View Full Details →</button>
                         </div>
                     </div>
 
                     <!-- Idea Card 2 -->
-                    <div class="idea-card animate-slide-in" style="animation-delay: 0.1s" onclick="showIdeaDetail(2)">
+                    <div class="idea-card">
                         <div class="idea-rank">2</div>
                         <h3>Self-Attention for Time Series Forecasting</h3>
                         <p class="idea-pitch">
@@ -1264,14 +1024,12 @@
                                 <span>•</span>
                                 <span>🎯 Beginner-Intermediate</span>
                             </div>
-                            <button class="btn btn-primary" onclick="event.stopPropagation(); showIdeaDetail(2)">
-                                View Details →
-                            </button>
+                            <button class="btn btn-primary">View Full Details →</button>
                         </div>
                     </div>
 
                     <!-- Idea Card 3 -->
-                    <div class="idea-card animate-slide-in" style="animation-delay: 0.2s" onclick="showIdeaDetail(3)">
+                    <div class="idea-card">
                         <div class="idea-rank">3</div>
                         <h3>Interpretable Attention for Healthcare</h3>
                         <p class="idea-pitch">
@@ -1311,276 +1069,59 @@
                                 <span>•</span>
                                 <span>🎯 Advanced</span>
                             </div>
-                            <button class="btn btn-primary" onclick="event.stopPropagation(); showIdeaDetail(3)">
-                                View Details →
-                            </button>
+                            <button class="btn btn-primary">View Full Details →</button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Idea Detail Screen -->
-        <div id="detail-screen" class="screen">
-            <div class="idea-detail-screen">
-                <div class="detail-sidebar">
-                    <div class="sidebar-nav">
-                        <h4>Jump to</h4>
-                        <a href="#overview" class="active">Overview</a>
-                        <a href="#why">Why This Idea?</a>
-                        <a href="#literature">Literature Review</a>
-                        <a href="#gap">Research Gap</a>
-                        <a href="#approach">Suggested Approach</a>
-                        <a href="#resources">Resources Needed</a>
-                        <a href="#references">References</a>
-                    </div>
-                </div>
-
-                <div class="detail-content">
-                    <section id="overview">
-                        <h2>Efficient Transformers for Mobile Devices</h2>
-                        <p style="font-size: 1.2rem; color: var(--gray-700); line-height: 1.8; margin-bottom: 2rem;">
-                            This research direction focuses on developing lightweight attention mechanisms that maintain Transformer performance while dramatically reducing computational requirements, enabling deployment on resource-constrained mobile devices.
-                        </p>
-
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
-                            <div style="padding: 1.5rem; background: var(--gray-50); border-radius: 12px; text-align: center;">
-                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">⏱️</div>
-                                <div style="font-weight: 600; color: var(--gray-800);">4-6 months</div>
-                                <div style="font-size: 0.9rem; color: var(--gray-600);">Estimated Timeline</div>
-                            </div>
-                            <div style="padding: 1.5rem; background: var(--gray-50); border-radius: 12px; text-align: center;">
-                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎯</div>
-                                <div style="font-weight: 600; color: var(--gray-800);">Intermediate</div>
-                                <div style="font-size: 0.9rem; color: var(--gray-600);">Difficulty Level</div>
-                            </div>
-                            <div style="padding: 1.5rem; background: var(--gray-50); border-radius: 12px; text-align: center;">
-                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">💰</div>
-                                <div style="font-weight: 600; color: var(--gray-800);">Moderate</div>
-                                <div style="font-size: 0.9rem; color: var(--gray-600);">Resource Needs</div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section id="why">
-                        <h3>Why This Idea?</h3>
-                        <p style="color: var(--gray-700); line-height: 1.8; margin-bottom: 1rem;">
-                            The original Transformer paper revolutionized NLP with self-attention mechanisms, but the quadratic computational complexity makes deployment on mobile devices challenging. Current smartphones have increasingly powerful AI accelerators, yet most Transformer-based models remain too computationally expensive for real-time on-device inference.
-                        </p>
-                        <p style="color: var(--gray-700); line-height: 1.8;">
-                            This research direction is particularly well-suited for you because it combines your expertise in model optimization with the growing demand for privacy-preserving, on-device AI. Your recent work on efficient neural architectures provides a strong foundation for tackling attention mechanism optimization.
-                        </p>
-                    </section>
-
-                    <section id="literature">
-                        <h3>Literature Overview</h3>
-
-                        <h4 style="color: var(--gray-700); margin: 2rem 0 1rem; font-size: 1.1rem;">Foundational Work</h4>
-                        <div class="literature-item">
-                            <h4>Linformer: Self-Attention with Linear Complexity</h4>
-                            <p class="authors">Wang et al., 2020 • arXiv • Cited by 847</p>
-                            <p class="summary">
-                                Introduces a method to reduce the self-attention complexity from O(n²) to O(n) by projecting keys and values to a lower-dimensional space. Achieves similar performance to standard Transformers on language modeling tasks while being significantly faster.
-                            </p>
-                        </div>
-
-                        <div class="literature-item">
-                            <h4>Reformer: The Efficient Transformer</h4>
-                            <p class="authors">Kitaev et al., 2020 • ICLR • Cited by 1,234</p>
-                            <p class="summary">
-                                Proposes locality-sensitive hashing to reduce attention complexity and reversible residual layers to reduce memory consumption. Demonstrates ability to process sequences of up to 1 million tokens on a single GPU.
-                            </p>
-                        </div>
-
-                        <h4 style="color: var(--gray-700); margin: 2rem 0 1rem; font-size: 1.1rem;">Recent Advances</h4>
-                        <div class="literature-item">
-                            <h4>MobileViT: Light-weight, General-purpose Vision Transformer</h4>
-                            <p class="authors">Mehta & Rastegari, 2021 • ICLR • Cited by 456</p>
-                            <p class="summary">
-                                Combines CNNs with Transformers for efficient mobile vision tasks. Introduces mobile-friendly building blocks that balance global and local processing. Achieves competitive performance with MobileNetV3 while using fewer parameters.
-                            </p>
-                        </div>
-
-                        <div class="literature-item">
-                            <h4>EfficientFormer: Vision Transformers at MobileNet Speed</h4>
-                            <p class="authors">Li et al., 2022 • NeurIPS • Cited by 289</p>
-                            <p class="summary">
-                                Redesigns vision Transformers specifically for mobile devices by removing inefficient operations. Achieves inference speeds comparable to MobileNetV2 while maintaining higher accuracy on ImageNet.
-                            </p>
-                        </div>
-
-                        <h4 style="color: var(--gray-700); margin: 2rem 0 1rem; font-size: 1.1rem;">Identified Gaps</h4>
-                        <div class="literature-item">
-                            <h4>Hardware-Software Co-design for Mobile Transformers</h4>
-                            <p class="summary">
-                                Most efficient Transformer research focuses on algorithmic improvements without considering mobile hardware constraints. There's limited work on co-designing attention mechanisms with mobile AI accelerators (NPUs, DSPs) to maximize real-world performance.
-                            </p>
-                        </div>
-                    </section>
-
-                    <section id="gap">
-                        <h3>What's Missing: The Research Gap</h3>
-                        <p style="color: var(--gray-700); line-height: 1.8; margin-bottom: 1rem;">
-                            While significant progress has been made in reducing Transformer complexity, most approaches focus on asymptotic complexity without considering the practical constraints of mobile hardware:
-                        </p>
-                        <ul style="color: var(--gray-700); line-height: 1.8; margin-left: 1.5rem; margin-bottom: 1rem;">
-                            <li><strong>Memory bandwidth bottlenecks:</strong> Mobile devices have limited memory bandwidth, making memory-intensive operations like attention particularly slow regardless of FLOPs</li>
-                            <li><strong>Quantization-aware designs:</strong> Most efficient Transformers assume full precision, but mobile inference typically uses INT8 or lower precision</li>
-                            <li><strong>Battery consumption:</strong> Computational efficiency alone doesn't capture energy efficiency, crucial for mobile applications</li>
-                            <li><strong>Multi-modal applications:</strong> Limited exploration of efficient attention for vision-language models on mobile devices</li>
-                        </ul>
-                        <p style="color: var(--gray-700); line-height: 1.8;">
-                            This gap represents a high-impact opportunity to bridge theoretical efficiency improvements with practical mobile deployment constraints.
-                        </p>
-                    </section>
-
-                    <section id="approach">
-                        <h3>Suggested Approach</h3>
-
-                        <div class="approach-steps">
-                            <div class="approach-step">
-                                <h4>Benchmark Existing Methods on Real Mobile Hardware</h4>
-                                <p>Profile Linformer, Reformer, and EfficientFormer on representative mobile devices (e.g., iPhone 14, Samsung Galaxy S23). Measure not just FLOPs but actual latency, memory usage, and battery consumption. Identify bottlenecks specific to mobile hardware.</p>
-                            </div>
-
-                            <div class="approach-step">
-                                <h4>Design Hardware-Aware Attention Mechanisms</h4>
-                                <p>Develop attention variants optimized for mobile NPUs/DSPs. Consider block-sparse patterns that align with hardware capabilities, quantization-aware attention scores, and memory-efficient key-value caching strategies.</p>
-                            </div>
-
-                            <div class="approach-step">
-                                <h4>Implement and Optimize</h4>
-                                <p>Use TensorFlow Lite, PyTorch Mobile, or ONNX Runtime for implementation. Apply quantization-aware training, pruning, and knowledge distillation. Target real-time inference (30+ FPS for vision tasks) on mid-range devices.</p>
-                            </div>
-
-                            <div class="approach-step">
-                                <h4>Evaluate on Diverse Tasks</h4>
-                                <p>Test on multiple domains: image classification (ImageNet), object detection (COCO), language understanding (GLUE), and multi-modal tasks. Compare against MobileNet baselines and existing efficient Transformers.</p>
-                            </div>
-
-                            <div class="approach-step">
-                                <h4>Publish and Release</h4>
-                                <p>Write paper targeting CVPR, ICCV, or MobiCom. Release code, pre-trained models, and mobile app demo. Document deployment guidelines for practitioners.</p>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section id="resources">
-                        <h3>Resources Needed</h3>
-
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
-                            <div style="padding: 1.5rem; background: var(--gray-50); border-radius: 12px;">
-                                <h4 style="color: var(--gray-800); margin-bottom: 1rem;">💻 Compute & Hardware</h4>
-                                <ul style="color: var(--gray-700); line-height: 1.8; margin-left: 1.5rem;">
-                                    <li>1-2 GPUs for training (RTX 3090 or A100)</li>
-                                    <li>3-4 mobile devices for testing (iOS & Android)</li>
-                                    <li>Cloud credits for large-scale experiments (~$1000)</li>
-                                </ul>
-                            </div>
-
-                            <div style="padding: 1.5rem; background: var(--gray-50); border-radius: 12px;">
-                                <h4 style="color: var(--gray-800); margin-bottom: 1rem;">📚 Datasets</h4>
-                                <ul style="color: var(--gray-700); line-height: 1.8; margin-left: 1.5rem;">
-                                    <li>ImageNet (publicly available)</li>
-                                    <li>MS COCO (publicly available)</li>
-                                    <li>GLUE benchmark (publicly available)</li>
-                                </ul>
-                            </div>
-
-                            <div style="padding: 1.5rem; background: var(--gray-50); border-radius: 12px;">
-                                <h4 style="color: var(--gray-800); margin-bottom: 1rem;">🛠️ Technical Skills</h4>
-                                <ul style="color: var(--gray-700); line-height: 1.8; margin-left: 1.5rem;">
-                                    <li>PyTorch/TensorFlow</li>
-                                    <li>Model optimization (quantization, pruning)</li>
-                                    <li>Mobile deployment frameworks</li>
-                                    <li>Performance profiling</li>
-                                </ul>
-                            </div>
-
-                            <div style="padding: 1.5rem; background: var(--gray-50); border-radius: 12px;">
-                                <h4 style="color: var(--gray-800); margin-bottom: 1rem;">👥 Collaboration</h4>
-                                <ul style="color: var(--gray-700); line-height: 1.8; margin-left: 1.5rem;">
-                                    <li>Mobile systems expert (optional but helpful)</li>
-                                    <li>Access to mobile hardware lab</li>
-                                    <li>Advisor with computer vision background</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section id="references">
-                        <h3>Key References</h3>
-                        <ol style="color: var(--gray-700); line-height: 2; margin-left: 1.5rem;">
-                            <li>Vaswani, A., et al. (2017). "Attention is all you need." NeurIPS.</li>
-                            <li>Wang, S., et al. (2020). "Linformer: Self-attention with linear complexity." arXiv.</li>
-                            <li>Kitaev, N., et al. (2020). "Reformer: The efficient transformer." ICLR.</li>
-                            <li>Mehta, S., & Rastegari, M. (2021). "MobileViT: Light-weight, general-purpose vision transformer." ICLR.</li>
-                            <li>Li, Y., et al. (2022). "EfficientFormer: Vision transformers at MobileNet speed." NeurIPS.</li>
-                            <li>Howard, A., et al. (2019). "Searching for MobileNetV3." ICCV.</li>
-                            <li>Jacob, B., et al. (2018). "Quantization and training of neural networks for efficient integer-arithmetic-only inference." CVPR.</li>
-                        </ol>
-
-                        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
-                            <button class="btn btn-secondary">📥 Export as PDF</button>
-                            <button class="btn btn-secondary">📋 Copy BibTeX</button>
-                            <button class="btn btn-primary">✓ Mark as Pursuing</button>
-                        </div>
-                    </section>
-
-                    <div style="margin-top: 3rem; padding: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; text-align: center; color: white;">
-                        <h3 style="color: white; margin-bottom: 1rem;">Ready to Start This Research?</h3>
-                        <p style="margin-bottom: 1.5rem; opacity: 0.95;">Save this idea to your research library and get started with curated resources</p>
-                        <button class="btn btn-large" style="background: white; color: var(--primary-color);" onclick="showScreen('results')">
-                            ← Back to All Ideas
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </section>
     </div>
 
     <script>
-        // Screen management
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
-            document.getElementById(screenId + '-screen').classList.add('active');
-            window.scrollTo(0, 0);
-        }
+        // Profile method toggle
+        function toggleProfileMethod() {
+            const method = document.getElementById('profile-method').value;
+            const manualFields = document.getElementById('manual-fields');
+            const scholarFields = document.getElementById('scholar-fields');
+            const saveBtn = document.getElementById('save-profile-btn');
 
-        // Profile creation
-        let selectedProfileMethod = null;
-
-        function selectProfileMethod(method) {
-            selectedProfileMethod = method;
-            document.querySelectorAll('.profile-option').forEach(opt => opt.classList.remove('selected'));
-            event.target.closest('.profile-option').classList.add('selected');
-
-            document.getElementById('manual-form').classList.add('hidden');
-            document.getElementById('scholar-form').classList.add('hidden');
+            manualFields.classList.add('hidden');
+            scholarFields.classList.add('hidden');
+            saveBtn.disabled = true;
 
             if (method === 'manual') {
-                document.getElementById('manual-form').classList.remove('hidden');
-            } else {
-                document.getElementById('scholar-form').classList.remove('hidden');
+                manualFields.classList.remove('hidden');
+                saveBtn.disabled = false;
+            } else if (method === 'scholar') {
+                scholarFields.classList.remove('hidden');
+                saveBtn.disabled = false;
             }
         }
 
-        function createProfile(e) {
-            e.preventDefault();
-            // Simulate profile creation
-            setTimeout(() => {
-                showScreen('upload');
-            }, 500);
+        function saveProfile() {
+            const method = document.getElementById('profile-method').value;
+            if (method === 'manual') {
+                // Validate manual fields
+                const areas = document.getElementById('research-areas').value;
+                const level = document.getElementById('expertise-level').value;
+                if (!areas || !level) {
+                    alert('Please fill in required fields');
+                    return;
+                }
+            }
+            // Scroll to upload section
+            document.getElementById('upload').scrollIntoView({ behavior: 'smooth' });
         }
 
-        function importScholar(e) {
-            e.preventDefault();
-            // Simulate Google Scholar import
+        function importScholar() {
+            const url = document.getElementById('scholar-url').value;
+            if (!url) {
+                alert('Please enter your Google Scholar URL');
+                return;
+            }
             alert('Importing your Google Scholar profile...');
             setTimeout(() => {
-                showScreen('upload');
+                document.getElementById('upload').scrollIntoView({ behavior: 'smooth' });
             }, 1500);
         }
 
@@ -1625,6 +1166,10 @@
         function handleFile(file) {
             document.getElementById('file-name').textContent = file.name;
             document.getElementById('file-info').classList.remove('hidden');
+            // Scroll to topics section
+            setTimeout(() => {
+                document.getElementById('topics').scrollIntoView({ behavior: 'smooth' });
+            }, 500);
         }
 
         // Topic selection
@@ -1706,7 +1251,9 @@
 
         // Processing animation
         function startAnalysis() {
-            showScreen('processing');
+            // Show processing section
+            document.getElementById('processing-container').classList.add('active');
+            document.getElementById('processing').scrollIntoView({ behavior: 'smooth' });
 
             const steps = ['step-1', 'step-2', 'step-3'];
             let currentStep = 0;
@@ -1728,14 +1275,11 @@
                 if (progress >= 100) {
                     clearInterval(interval);
                     setTimeout(() => {
-                        showScreen('results');
+                        document.getElementById('results-container').classList.add('active');
+                        document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
                     }, 500);
                 }
             }, 100);
-        }
-
-        function showIdeaDetail(ideaId) {
-            showScreen('detail');
         }
 
         // Initialize
