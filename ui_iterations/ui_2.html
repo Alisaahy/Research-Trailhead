@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Discovery Agent - Sage & Gradient</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sage: {
+                            50: '#f6f7f6',
+                            100: '#e3e7e2',
+                            200: '#c7cfc5',
+                            300: '#a5b29f',
+                            400: '#8b9d83',
+                            500: '#6f8267',
+                            600: '#5a6852',
+                            700: '#495344',
+                            800: '#3d4539',
+                            900: '#343a31',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        *::-webkit-scrollbar {
+            display: none;
+        }
+        .gradient-card {
+            background: linear-gradient(135deg, #f6f7f6 0%, #ffffff 100%);
+        }
+        .gradient-result {
+            background: linear-gradient(135deg, #e3e7e2 0%, #f6f7f6 50%, #ffffff 100%);
+        }
+        .sage-border {
+            border: 2px solid #8b9d83;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .spinner {
+            border: 2px solid #e3e7e2;
+            border-top: 2px solid #8b9d83;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, #8b9d83 0%, #a5b29f 100%);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen">
+    <div class="max-w-7xl mx-auto p-8 md:p-16">
+        <!-- Header -->
+        <header class="mb-16 text-center">
+            <h1 class="text-4xl font-light text-gray-800 mb-8">Research Discovery Agent</h1>
+            <p class="text-gray-600 mb-16">Transform papers into breakthrough ideas</p>
+
+            <!-- Progress Steps -->
+            <div class="flex justify-center items-center gap-4 max-w-3xl mx-auto">
+                <div id="step-1" class="sage-border rounded-lg p-8 flex-1 text-center gradient-card">
+                    <div class="font-semibold text-sm text-sage-700">Step 1</div>
+                    <div class="text-xs text-gray-600 mt-4">Profile</div>
+                </div>
+                <div class="text-sage-300">→</div>
+                <div id="step-2" class="border-2 border-gray-200 rounded-lg p-8 flex-1 text-center bg-white">
+                    <div class="font-semibold text-sm text-gray-400">Step 2</div>
+                    <div class="text-xs text-gray-400 mt-4">Upload</div>
+                </div>
+                <div class="text-gray-200">→</div>
+                <div id="step-3" class="border-2 border-gray-200 rounded-lg p-8 flex-1 text-center bg-white">
+                    <div class="font-semibold text-sm text-gray-400">Step 3</div>
+                    <div class="text-xs text-gray-400 mt-4">Analyze</div>
+                </div>
+                <div class="text-gray-200">→</div>
+                <div id="step-4" class="border-2 border-gray-200 rounded-lg p-8 flex-1 text-center bg-white">
+                    <div class="font-semibold text-sm text-gray-400">Step 4</div>
+                    <div class="text-xs text-gray-400 mt-4">Select</div>
+                </div>
+                <div class="text-gray-200">→</div>
+                <div id="step-5" class="border-2 border-gray-200 rounded-lg p-8 flex-1 text-center bg-white">
+                    <div class="font-semibold text-sm text-gray-400">Step 5</div>
+                    <div class="text-xs text-gray-400 mt-4">Results</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="max-w-4xl mx-auto space-y-24">
+
+            <!-- STEP 1: User Profile -->
+            <section id="section-1" class="fade-in">
+                <div class="sage-border rounded-lg p-24 gradient-card shadow-lg">
+                    <h2 class="text-2xl font-light text-gray-800 mb-16">Create Your Research Profile</h2>
+
+                    <!-- Method Selection -->
+                    <div class="mb-16">
+                        <label class="block text-sm font-medium text-gray-700 mb-8">Profile Method</label>
+                        <select id="profile-method" class="w-full border-2 border-sage-300 rounded-lg p-12 text-base focus:outline-none focus:border-sage-500" onchange="toggleProfileMethod()">
+                            <option value="manual">Manual Description</option>
+                            <option value="scholar">Google Scholar URL</option>
+                        </select>
+                    </div>
+
+                    <!-- Manual Profile -->
+                    <div id="manual-section">
+                        <div class="mb-16">
+                            <label class="block text-sm font-medium text-gray-700 mb-8">Research Description</label>
+                            <textarea
+                                id="profile-description"
+                                rows="5"
+                                class="w-full border-2 border-sage-300 rounded-lg p-12 text-base focus:outline-none focus:border-sage-500"
+                                placeholder="Describe your research interests and background..."
+                            ></textarea>
+                        </div>
+
+                        <div class="mb-24">
+                            <label class="block text-sm font-medium text-gray-700 mb-8">Experience Level</label>
+                            <select id="experience-level" class="w-full border-2 border-sage-300 rounded-lg p-12 text-base focus:outline-none focus:border-sage-500">
+                                <option value="">Auto-detect</option>
+                                <option value="Undergraduate Student">Undergraduate Student</option>
+                                <option value="PhD Student">PhD Student</option>
+                                <option value="Postdoc">Postdoc</option>
+                                <option value="Assistant Professor">Assistant Professor</option>
+                                <option value="Associate/Full Professor">Associate/Full Professor</option>
+                                <option value="Industry Researcher">Industry Researcher</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Scholar URL -->
+                    <div id="scholar-section" class="hidden mb-24">
+                        <label class="block text-sm font-medium text-gray-700 mb-8">Google Scholar URL</label>
+                        <input
+                            type="text"
+                            id="scholar-url"
+                            class="w-full border-2 border-sage-300 rounded-lg p-12 text-base focus:outline-none focus:border-sage-500"
+                            placeholder="https://scholar.google.com/citations?user=..."
+                        >
+                    </div>
+
+                    <button
+                        onclick="createProfile()"
+                        class="w-full bg-sage-400 text-white py-16 rounded-lg hover:bg-sage-500 transition-colors text-base font-medium shadow-md"
+                    >
+                        Create Profile
+                    </button>
+
+                    <!-- Profile Result -->
+                    <div id="profile-result" class="mt-16 hidden">
+                        <div class="gradient-result rounded-lg p-16 shadow-sm">
+                            <h3 class="font-semibold text-sm mb-8 text-sage-700">Profile Created Successfully</h3>
+                            <div class="space-y-8 text-sm text-gray-700">
+                                <div><span class="font-semibold">User ID:</span> <span id="user-id" class="font-mono text-xs"></span></div>
+                                <div><span class="font-semibold">Level:</span> <span id="profile-level"></span></div>
+                                <div><span class="font-semibold">Areas:</span> <span id="profile-areas"></span></div>
+                                <div><span class="font-semibold">Style:</span> <span id="profile-style"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 2: Upload Paper -->
+            <section id="section-2" class="hidden">
+                <div class="sage-border rounded-lg p-24 gradient-card shadow-lg fade-in">
+                    <h2 class="text-2xl font-light text-gray-800 mb-16">Upload Research Paper</h2>
+
+                    <div class="mb-16">
+                        <label class="block text-sm font-medium text-gray-700 mb-8">PDF File</label>
+                        <input
+                            type="file"
+                            id="pdf-file"
+                            accept=".pdf"
+                            class="w-full border-2 border-sage-300 rounded-lg p-12 text-base focus:outline-none focus:border-sage-500 bg-white"
+                        >
+                    </div>
+
+                    <div class="mb-16">
+                        <label class="block text-sm font-medium text-gray-700 mb-8">Auto-detected Topics</label>
+                        <div id="auto-topics" class="min-h-[48px] p-12 gradient-result rounded-lg border-2 border-sage-200 flex flex-wrap gap-8">
+                            <span class="text-sm text-gray-500 italic">Topics from your profile</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-24">
+                        <label class="block text-sm font-medium text-gray-700 mb-8">Additional Topics (Optional)</label>
+                        <input
+                            type="text"
+                            id="manual-topics"
+                            class="w-full border-2 border-sage-300 rounded-lg p-12 text-base focus:outline-none focus:border-sage-500"
+                            placeholder="Graph Neural Networks, Attention Mechanisms (comma-separated)"
+                        >
+                        <p class="text-xs text-gray-500 mt-8">Add specific topics not in your profile</p>
+                    </div>
+
+                    <button
+                        onclick="uploadAndAnalyze()"
+                        id="upload-btn"
+                        class="w-full bg-sage-400 text-white py-16 rounded-lg hover:bg-sage-500 transition-colors text-base font-medium shadow-md"
+                    >
+                        Upload & Analyze Paper
+                    </button>
+
+                    <!-- Upload Status -->
+                    <div id="upload-status" class="mt-16 hidden">
+                        <div class="gradient-result rounded-lg p-16 shadow-sm">
+                            <div class="flex items-center gap-8 mb-8">
+                                <div class="spinner"></div>
+                                <p class="text-sm font-semibold text-sage-700">Processing...</p>
+                            </div>
+                            <p class="text-sm text-gray-600">Job ID: <span id="job-id" class="font-mono text-xs"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 3: Quick Read Results -->
+            <section id="section-3" class="hidden">
+                <div class="sage-border rounded-lg p-24 gradient-card shadow-lg fade-in">
+                    <h2 class="text-2xl font-light text-gray-800 mb-16">Paper Analysis</h2>
+
+                    <!-- Summary -->
+                    <div class="mb-24">
+                        <h3 class="font-semibold text-base mb-8 text-gray-800">Summary</h3>
+                        <div class="gradient-result rounded-lg p-16 shadow-sm">
+                            <p id="paper-summary" class="text-sm text-gray-700 leading-relaxed"></p>
+                        </div>
+                    </div>
+
+                    <!-- Key Concepts -->
+                    <div class="mb-24">
+                        <h3 class="font-semibold text-base mb-8 text-gray-800">Key Concepts</h3>
+                        <div id="concepts-list" class="flex flex-wrap gap-8"></div>
+                    </div>
+
+                    <!-- Research Ideas -->
+                    <div class="mb-24">
+                        <h3 class="font-semibold text-base mb-8 text-gray-800">Research Ideas (Select 3)</h3>
+                        <div id="ideas-list" class="space-y-8"></div>
+                    </div>
+
+                    <button
+                        onclick="researchSelectedIdeas()"
+                        id="research-btn"
+                        class="w-full bg-sage-400 text-white py-16 rounded-lg hover:bg-sage-500 transition-colors text-base font-medium shadow-md"
+                    >
+                        Research Selected Ideas
+                    </button>
+
+                    <!-- Research Status -->
+                    <div id="research-status" class="mt-16 hidden">
+                        <div class="gradient-result rounded-lg p-16 shadow-sm">
+                            <div class="flex items-center gap-8">
+                                <div class="spinner"></div>
+                                <p class="text-sm font-semibold text-sage-700">Deep research in progress (5-10 min)...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 5: Final Results -->
+            <section id="section-5" class="hidden">
+                <div class="sage-border rounded-lg p-24 gradient-card shadow-lg fade-in">
+                    <h2 class="text-2xl font-light text-gray-800 mb-16">Top Research Ideas</h2>
+                    <div id="final-ideas-list" class="space-y-16"></div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script>
+        let currentUserId = null;
+        let currentJobId = null;
+        let currentStep = 1;
+        let allIdeas = [];
+
+        // API Base URL
+        const API_BASE = 'http://localhost:5001';
+
+        function setStep(step) {
+            currentStep = step;
+
+            // Update progress indicators
+            for (let i = 1; i <= 5; i++) {
+                const el = document.getElementById(`step-${i}`);
+                if (i <= step) {
+                    el.className = 'sage-border rounded-lg p-8 flex-1 text-center gradient-card';
+                    el.querySelector('.font-semibold').className = 'font-semibold text-sm text-sage-700';
+                    el.querySelector('.text-xs').className = 'text-xs text-gray-600 mt-4';
+                } else {
+                    el.className = 'border-2 border-gray-200 rounded-lg p-8 flex-1 text-center bg-white';
+                    el.querySelector('.font-semibold').className = 'font-semibold text-sm text-gray-400';
+                    el.querySelector('.text-xs').className = 'text-xs text-gray-400 mt-4';
+                }
+            }
+
+            // Show/hide sections
+            for (let i = 1; i <= 5; i++) {
+                const section = document.getElementById(`section-${i}`);
+                if (section) {
+                    if (i === step) {
+                        section.classList.remove('hidden');
+                        setTimeout(() => section.classList.add('fade-in'), 10);
+                    } else {
+                        section.classList.add('hidden');
+                    }
+                }
+            }
+        }
+
+        function toggleProfileMethod() {
+            const method = document.getElementById('profile-method').value;
+            if (method === 'manual') {
+                document.getElementById('manual-section').classList.remove('hidden');
+                document.getElementById('scholar-section').classList.add('hidden');
+            } else {
+                document.getElementById('manual-section').classList.add('hidden');
+                document.getElementById('scholar-section').classList.remove('hidden');
+            }
+        }
+
+        async function createProfile() {
+            const method = document.getElementById('profile-method').value;
+            let payload = { method };
+
+            if (method === 'manual') {
+                const description = document.getElementById('profile-description').value;
+                const experienceLevel = document.getElementById('experience-level').value;
+
+                if (!description) {
+                    alert('Please enter a research description');
+                    return;
+                }
+
+                payload.description = description;
+                if (experienceLevel) payload.experience_level = experienceLevel;
+            } else {
+                const scholarUrl = document.getElementById('scholar-url').value;
+                if (!scholarUrl) {
+                    alert('Please enter Google Scholar URL');
+                    return;
+                }
+                payload.google_scholar_url = scholarUrl;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/users/profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentUserId = data.user_id;
+
+                    // Display profile
+                    document.getElementById('profile-result').classList.remove('hidden');
+                    document.getElementById('user-id').textContent = data.user_id;
+                    document.getElementById('profile-level').textContent = data.profile.expertise_level || 'N/A';
+                    document.getElementById('profile-areas').textContent = (data.profile.research_areas || []).join(', ') || 'N/A';
+                    document.getElementById('profile-style').textContent = data.profile.research_style || 'N/A';
+
+                    // Auto-generate topics
+                    displayAutoTopics(data.profile);
+
+                    // Move to step 2 after delay
+                    setTimeout(() => setStep(2), 1500);
+                } else {
+                    alert(`Error: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        function displayAutoTopics(profile) {
+            const autoTopicsDiv = document.getElementById('auto-topics');
+            autoTopicsDiv.innerHTML = '';
+
+            const topics = [
+                ...(profile.research_areas || []),
+                ...(profile.specific_topics || []).slice(0, 3)
+            ];
+
+            if (topics.length === 0) {
+                autoTopicsDiv.innerHTML = '<span class="text-sm text-gray-500 italic">No topics detected</span>';
+                return;
+            }
+
+            topics.forEach(topic => {
+                const badge = document.createElement('span');
+                badge.className = 'bg-sage-200 text-sage-800 px-12 py-8 rounded-lg text-sm';
+                badge.textContent = topic;
+                autoTopicsDiv.appendChild(badge);
+            });
+        }
+
+        function getAllTopics() {
+            const autoTopicsDiv = document.getElementById('auto-topics');
+            const autoTopics = Array.from(autoTopicsDiv.querySelectorAll('span.bg-sage-200')).map(el => el.textContent);
+
+            const manualTopicsInput = document.getElementById('manual-topics').value;
+            const manualTopics = manualTopicsInput ? manualTopicsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+
+            return [...new Set([...autoTopics, ...manualTopics])];
+        }
+
+        async function uploadAndAnalyze() {
+            const fileInput = document.getElementById('pdf-file');
+
+            if (!currentUserId) {
+                alert('Please create a user profile first');
+                return;
+            }
+
+            if (!fileInput.files[0]) {
+                alert('Please select a PDF file');
+                return;
+            }
+
+            const topics = getAllTopics();
+            if (topics.length === 0) {
+                alert('No topics available');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('upload-btn').disabled = true;
+            document.getElementById('upload-status').classList.remove('hidden');
+
+            try {
+                // Upload PDF
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('user_id', currentUserId);
+
+                const uploadResponse = await fetch(`${API_BASE}/api/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const uploadData = await uploadResponse.json();
+
+                if (!uploadResponse.ok) {
+                    alert(`Upload error: ${uploadData.error}`);
+                    return;
+                }
+
+                currentJobId = uploadData.job_id;
+                document.getElementById('job-id').textContent = currentJobId;
+
+                // Quick read analysis
+                const analyzeResponse = await fetch(`${API_BASE}/api/analyze/read`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: currentJobId,
+                        topics: topics
+                    })
+                });
+
+                const analyzeData = await analyzeResponse.json();
+
+                if (analyzeResponse.ok) {
+                    displayReaderResults(analyzeData);
+                    setTimeout(() => setStep(3), 1000);
+                } else {
+                    alert(`Analysis error: ${analyzeData.error}`);
+                }
+
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            } finally {
+                document.getElementById('upload-btn').disabled = false;
+            }
+        }
+
+        function displayReaderResults(data) {
+            // Summary
+            document.getElementById('paper-summary').textContent = data.summary || 'No summary available';
+
+            // Concepts
+            const conceptsList = document.getElementById('concepts-list');
+            conceptsList.innerHTML = '';
+            (data.concepts || []).forEach(concept => {
+                const badge = document.createElement('span');
+                badge.className = 'bg-sage-200 text-sage-800 px-12 py-8 rounded-lg text-sm';
+                badge.textContent = concept;
+                conceptsList.appendChild(badge);
+            });
+
+            // Ideas
+            allIdeas = data.ideas || [];
+            const ideasList = document.getElementById('ideas-list');
+            ideasList.innerHTML = '';
+
+            allIdeas.forEach((idea, index) => {
+                const ideaDiv = document.createElement('div');
+                ideaDiv.className = 'gradient-result rounded-lg p-16 shadow-sm flex items-start gap-12 cursor-pointer hover:shadow-md transition-shadow';
+                ideaDiv.innerHTML = `
+                    <input type="checkbox" id="idea-${index}" value="${index}" class="mt-4 w-20 h-20 accent-sage-400 idea-checkbox" onchange="checkIdeaSelection()">
+                    <label for="idea-${index}" class="flex-1 cursor-pointer">
+                        <p class="font-semibold text-base text-gray-800 mb-8">${idea.title || 'Idea ' + (index + 1)}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed">${idea.description || ''}</p>
+                    </label>
+                `;
+                ideasList.appendChild(ideaDiv);
+            });
+        }
+
+        function checkIdeaSelection() {
+            const checked = document.querySelectorAll('.idea-checkbox:checked');
+            if (checked.length > 3) {
+                checked[checked.length - 1].checked = false;
+                alert('Please select exactly 3 ideas');
+            }
+        }
+
+        async function researchSelectedIdeas() {
+            const selectedCheckboxes = document.querySelectorAll('.idea-checkbox:checked');
+
+            if (selectedCheckboxes.length !== 3) {
+                alert('Please select exactly 3 ideas to research');
+                return;
+            }
+
+            const selectedIndices = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+
+            // Show loading
+            document.getElementById('research-btn').disabled = true;
+            document.getElementById('research-status').classList.remove('hidden');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/analyze/search`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: currentJobId,
+                        selected_ideas: selectedIndices
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayFinalResults(data.top_ideas);
+                    setTimeout(() => setStep(5), 1000);
+                } else {
+                    alert(`Research error: ${data.error}`);
+                }
+
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            } finally {
+                document.getElementById('research-btn').disabled = false;
+            }
+        }
+
+        function displayFinalResults(topIdeas) {
+            const finalList = document.getElementById('final-ideas-list');
+            finalList.innerHTML = '';
+
+            topIdeas.forEach((idea, index) => {
+                const ideaDiv = document.createElement('div');
+                ideaDiv.className = 'gradient-result rounded-lg p-24 shadow-lg';
+
+                const refs = (idea.references || []).slice(0, 3);
+                const refHtml = refs.map(ref => `
+                    <div class="text-sm text-gray-700 mb-8 leading-relaxed">
+                        • ${ref.title || 'No title'} (${ref.year || 'N/A'}) - ${ref.citation_count || 0} citations
+                    </div>
+                `).join('');
+
+                ideaDiv.innerHTML = `
+                    <div class="flex items-start justify-between mb-16">
+                        <p class="font-semibold text-xl text-gray-800">Rank ${index + 1}: ${idea.title}</p>
+                        <span class="bg-sage-400 text-white px-16 py-8 rounded-lg text-base font-semibold shadow-md">Score: ${idea.composite_score}/5</span>
+                    </div>
+                    <p class="text-base text-gray-700 mb-24 leading-relaxed">${idea.description}</p>
+
+                    <!-- Scores -->
+                    <div class="grid grid-cols-3 gap-16 mb-24">
+                        <div class="bg-white rounded-lg p-16 text-center shadow-sm">
+                            <div class="text-sm text-gray-600 mb-8">Novelty</div>
+                            <div class="relative h-8 bg-gray-200 rounded-full overflow-hidden mb-8">
+                                <div class="progress-bar h-full" style="width: ${(idea.novelty_score / 5) * 100}%"></div>
+                            </div>
+                            <div class="font-bold text-base text-sage-700">${idea.novelty_score}/5</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-16 text-center shadow-sm">
+                            <div class="text-sm text-gray-600 mb-8">Doability</div>
+                            <div class="relative h-8 bg-gray-200 rounded-full overflow-hidden mb-8">
+                                <div class="progress-bar h-full" style="width: ${(idea.doability_score / 5) * 100}%"></div>
+                            </div>
+                            <div class="font-bold text-base text-sage-700">${idea.doability_score}/5</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-16 text-center shadow-sm">
+                            <div class="text-sm text-gray-600 mb-8">Topic Match</div>
+                            <div class="relative h-8 bg-gray-200 rounded-full overflow-hidden mb-8">
+                                <div class="progress-bar h-full" style="width: ${(idea.topic_match_score / 5) * 100}%"></div>
+                            </div>
+                            <div class="font-bold text-base text-sage-700">${idea.topic_match_score}/5</div>
+                        </div>
+                    </div>
+
+                    <!-- Rationale -->
+                    <div class="bg-white rounded-lg p-16 mb-16 shadow-sm">
+                        <p class="text-sm leading-relaxed"><span class="font-semibold text-gray-800">Rationale:</span> <span class="text-gray-700">${idea.rationale || 'N/A'}</span></p>
+                    </div>
+
+                    <!-- References -->
+                    <div class="bg-white rounded-lg p-16 shadow-sm">
+                        <p class="text-sm font-semibold mb-12 text-gray-800">Top References</p>
+                        ${refHtml || '<p class="text-sm text-gray-500">No references</p>'}
+                    </div>
+                `;
+                finalList.appendChild(ideaDiv);
+            });
+        }
+
+        // Initialize
+        setStep(1);
+    </script>
+</body>
+</html>
