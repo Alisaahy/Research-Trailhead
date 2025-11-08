@@ -63,7 +63,8 @@ class SearcherAgent:
             })
 
             # Rate limiting (Semantic Scholar: 100 req / 5 min)
-            time.sleep(1)
+            # Wait longer between ideas to avoid hitting rate limits
+            time.sleep(3)
 
         # Sort by composite score
         scored_ideas.sort(key=lambda x: x['composite_score'], reverse=True)
@@ -83,49 +84,71 @@ class SearcherAgent:
             'total_ideas_analyzed': len(ideas)
         }
 
-    def _search_papers(self, idea, limit=20):
+    def _search_papers(self, idea, limit=20, max_retries=3):
         """
-        Search for related papers using Semantic Scholar API
+        Search for related papers using Semantic Scholar API with retry logic
 
         Returns:
             List of paper dictionaries
         """
-        try:
-            # Construct search query
-            query = f"{idea['title']} {idea.get('description', '')[:100]}"
+        # Construct search query
+        query = f"{idea['title']} {idea.get('description', '')[:100]}"
 
-            # Search Semantic Scholar
-            url = f"{self.semantic_scholar_api}/paper/search"
-            params = {
-                'query': query,
-                'limit': limit,
-                'fields': 'title,abstract,year,citationCount,authors,url'
-            }
+        for attempt in range(max_retries):
+            try:
+                # Search Semantic Scholar
+                url = f"{self.semantic_scholar_api}/paper/search"
+                params = {
+                    'query': query,
+                    'limit': limit,
+                    'fields': 'title,abstract,year,citationCount,authors,url'
+                }
 
-            response = requests.get(url, params=params, timeout=10)
-            response.raise_for_status()
+                response = requests.get(url, params=params, timeout=10)
 
-            data = response.json()
-            papers = data.get('data', [])
+                # Handle rate limiting with exponential backoff
+                if response.status_code == 429:
+                    wait_time = (2 ** attempt) * 2  # 2s, 4s, 8s
+                    print(f"Rate limited (429). Retrying in {wait_time}s... (attempt {attempt + 1}/{max_retries})")
+                    time.sleep(wait_time)
+                    continue
 
-            # Filter and format papers
-            formatted_papers = []
-            for paper in papers:
-                if paper.get('abstract'):
-                    formatted_papers.append({
-                        'title': paper.get('title', ''),
-                        'abstract': paper.get('abstract', ''),
-                        'year': paper.get('year'),
-                        'citations': paper.get('citationCount', 0),
-                        'authors': [a.get('name', '') for a in paper.get('authors', [])[:3]],
-                        'url': paper.get('url', '')
-                    })
+                response.raise_for_status()
 
-            return formatted_papers
+                data = response.json()
+                papers = data.get('data', [])
 
-        except Exception as e:
-            print(f"Error searching papers: {e}")
-            return []
+                # Filter and format papers
+                formatted_papers = []
+                for paper in papers:
+                    if paper.get('abstract'):
+                        formatted_papers.append({
+                            'title': paper.get('title', ''),
+                            'abstract': paper.get('abstract', ''),
+                            'year': paper.get('year'),
+                            'citations': paper.get('citationCount', 0),
+                            'authors': [a.get('name', '') for a in paper.get('authors', [])[:3]],
+                            'url': paper.get('url', '')
+                        })
+
+                print(f"Successfully fetched {len(formatted_papers)} papers for: {idea['title'][:50]}")
+                return formatted_papers
+
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code == 429 and attempt < max_retries - 1:
+                    wait_time = (2 ** attempt) * 2
+                    print(f"Rate limited (429). Retrying in {wait_time}s... (attempt {attempt + 1}/{max_retries})")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    print(f"Error searching papers: {e}")
+                    return []
+            except Exception as e:
+                print(f"Error searching papers: {e}")
+                return []
+
+        print(f"Failed to fetch papers after {max_retries} attempts (rate limited)")
+        return []
 
     def _assess_novelty(self, idea, papers):
         """
