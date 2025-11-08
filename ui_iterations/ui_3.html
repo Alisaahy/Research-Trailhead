@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Discovery - Bold Red Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom red theme colors */
+        .bg-red-brand { background-color: #DC2626; }
+        .text-red-brand { color: #DC2626; }
+        .border-red-brand { border-color: #DC2626; }
+
+        /* Bold checkbox styling */
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #DC2626;
+        }
+
+        /* Red progress bar */
+        .progress-bar {
+            background: linear-gradient(90deg, #DC2626 0%, #EF4444 100%);
+            transition: width 0.3s ease;
+        }
+
+        /* Bold button hover effect */
+        .btn-red:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-red {
+            transition: all 0.2s ease;
+        }
+
+        /* Red selection highlight */
+        .idea-selected {
+            border: 3px solid #DC2626 !important;
+            background-color: #FEE2E2 !important;
+        }
+
+        /* Smooth transitions */
+        .fade-in {
+            animation: fadeIn 0.4s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Red rank badges */
+        .rank-badge {
+            background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+            box-shadow: 0 4px 8px rgba(220, 38, 38, 0.4);
+        }
+
+        /* Red focus states */
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #DC2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen">
+    <!-- Header -->
+    <div class="bg-red-brand text-white py-16 px-8">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-5xl font-black mb-8">Research Discovery Agent</h1>
+            <p class="text-xl font-medium opacity-90">Transform your research with AI-powered idea generation</p>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="bg-white border-b border-gray-200">
+        <div class="max-w-6xl mx-auto px-8 py-8">
+            <div class="flex justify-between items-center mb-8">
+                <div class="flex items-center space-x-8">
+                    <div id="step-indicator-1" class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-red-brand text-white flex items-center justify-center font-black text-lg">1</div>
+                        <span class="ml-8 font-bold text-gray-900">Profile</span>
+                    </div>
+                    <div class="w-24 h-2 bg-gray-200"><div id="progress-1-2" class="h-full bg-red-brand progress-bar" style="width: 0%"></div></div>
+                    <div id="step-indicator-2" class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-black text-lg">2</div>
+                        <span class="ml-8 font-bold text-gray-500">Upload</span>
+                    </div>
+                    <div class="w-24 h-2 bg-gray-200"><div id="progress-2-3" class="h-full bg-red-brand progress-bar" style="width: 0%"></div></div>
+                    <div id="step-indicator-3" class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-black text-lg">3</div>
+                        <span class="ml-8 font-bold text-gray-500">Analyze</span>
+                    </div>
+                    <div class="w-24 h-2 bg-gray-200"><div id="progress-3-4" class="h-full bg-red-brand progress-bar" style="width: 0%"></div></div>
+                    <div id="step-indicator-4" class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-black text-lg">4</div>
+                        <span class="ml-8 font-bold text-gray-500">Results</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-8 py-16">
+
+        <!-- STEP 1: User Profile -->
+        <div id="section-profile" class="fade-in">
+            <div class="bg-white border-4 border-red-brand rounded-lg p-16 shadow-2xl">
+                <h2 class="text-4xl font-black text-gray-900 mb-16">Step 1: Create Your Profile</h2>
+
+                <div class="mb-16">
+                    <label class="block text-lg font-bold text-gray-900 mb-8">Profile Method</label>
+                    <select id="profile-method" class="w-full border-4 border-gray-300 rounded-lg p-8 text-xl font-semibold" onchange="toggleProfileMethod()">
+                        <option value="manual">Manual Description</option>
+                        <option value="scholar">Google Scholar URL</option>
+                    </select>
+                </div>
+
+                <div id="manual-section">
+                    <div class="mb-16">
+                        <label class="block text-lg font-bold text-gray-900 mb-8">Research Description</label>
+                        <textarea
+                            id="profile-description"
+                            rows="6"
+                            class="w-full border-4 border-gray-300 rounded-lg p-8 text-lg"
+                            placeholder="Describe your research interests, background, and expertise..."
+                        ></textarea>
+                    </div>
+
+                    <div class="mb-16">
+                        <label class="block text-lg font-bold text-gray-900 mb-8">Experience Level</label>
+                        <select id="experience-level" class="w-full border-4 border-gray-300 rounded-lg p-8 text-xl font-semibold">
+                            <option value="">Auto-detect</option>
+                            <option value="Undergraduate Student">Undergraduate Student</option>
+                            <option value="PhD Student">PhD Student</option>
+                            <option value="Postdoc">Postdoc</option>
+                            <option value="Assistant Professor">Assistant Professor</option>
+                            <option value="Associate/Full Professor">Associate/Full Professor</option>
+                            <option value="Industry Researcher">Industry Researcher</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="scholar-section" class="hidden">
+                    <div class="mb-16">
+                        <label class="block text-lg font-bold text-gray-900 mb-8">Google Scholar URL</label>
+                        <input
+                            type="text"
+                            id="scholar-url"
+                            class="w-full border-4 border-gray-300 rounded-lg p-8 text-lg"
+                            placeholder="https://scholar.google.com/citations?user=..."
+                        >
+                    </div>
+                </div>
+
+                <button
+                    onclick="createProfile()"
+                    class="w-full bg-red-brand text-white py-16 rounded-lg font-black text-2xl btn-red"
+                >
+                    CREATE PROFILE
+                </button>
+
+                <div id="profile-result" class="mt-16 hidden">
+                    <div class="bg-red-50 border-4 border-red-brand rounded-lg p-16">
+                        <h3 class="font-black text-2xl mb-8 text-red-brand">PROFILE CREATED</h3>
+                        <div class="space-y-8 text-lg">
+                            <div><span class="font-black text-gray-900">User ID:</span> <span id="user-id" class="font-mono font-bold text-red-brand"></span></div>
+                            <div><span class="font-black text-gray-900">Level:</span> <span id="profile-level" class="font-bold"></span></div>
+                            <div><span class="font-black text-gray-900">Research Areas:</span> <span id="profile-areas" class="font-bold"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 2: Upload Paper -->
+        <div id="section-upload" class="hidden fade-in">
+            <div class="bg-white border-4 border-red-brand rounded-lg p-16 shadow-2xl">
+                <h2 class="text-4xl font-black text-gray-900 mb-16">Step 2: Upload Your Paper</h2>
+
+                <div class="mb-16">
+                    <label class="block text-lg font-bold text-gray-900 mb-8">Select PDF File</label>
+                    <input
+                        type="file"
+                        id="pdf-file"
+                        accept=".pdf"
+                        class="w-full border-4 border-gray-300 rounded-lg p-8 text-lg font-semibold"
+                    >
+                </div>
+
+                <div class="mb-16">
+                    <label class="block text-lg font-bold text-gray-900 mb-8">Auto-detected Topics</label>
+                    <div id="auto-topics" class="p-8 bg-gray-50 border-4 border-gray-200 rounded-lg min-h-[96px] flex flex-wrap gap-8">
+                        <span class="text-lg text-gray-500 italic">Topics will be auto-generated from your profile</span>
+                    </div>
+                </div>
+
+                <div class="mb-16">
+                    <label class="block text-lg font-bold text-gray-900 mb-8">Additional Topics (Optional)</label>
+                    <input
+                        type="text"
+                        id="manual-topics"
+                        class="w-full border-4 border-gray-300 rounded-lg p-8 text-lg"
+                        placeholder="Add custom topics (comma-separated)"
+                    >
+                </div>
+
+                <button
+                    onclick="uploadAndAnalyze()"
+                    class="w-full bg-red-brand text-white py-16 rounded-lg font-black text-2xl btn-red"
+                >
+                    UPLOAD & ANALYZE
+                </button>
+
+                <div id="upload-status" class="mt-16 hidden">
+                    <div class="bg-red-50 border-4 border-red-brand rounded-lg p-16">
+                        <h3 class="font-black text-2xl mb-8 text-red-brand">PROCESSING</h3>
+                        <div class="space-y-8 text-lg">
+                            <div><span class="font-black">Status:</span> <span id="status-text" class="font-bold text-red-brand"></span></div>
+                            <div><span class="font-black">Job ID:</span> <span id="job-id" class="font-mono font-bold"></span></div>
+                            <div class="mt-8">
+                                <div class="w-full h-8 bg-gray-200 rounded-full overflow-hidden">
+                                    <div id="upload-progress-bar" class="h-full progress-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 3: Quick Read Results & Select Ideas -->
+        <div id="section-ideas" class="hidden fade-in">
+            <div class="bg-white border-4 border-red-brand rounded-lg p-16 shadow-2xl">
+                <h2 class="text-4xl font-black text-gray-900 mb-16">Step 3: Select Your Top Ideas</h2>
+
+                <div class="mb-16">
+                    <h3 class="font-black text-2xl text-red-brand mb-8">PAPER SUMMARY</h3>
+                    <div class="bg-gray-50 border-4 border-gray-200 rounded-lg p-8">
+                        <p id="paper-summary" class="text-lg text-gray-700 leading-relaxed"></p>
+                    </div>
+                </div>
+
+                <div class="mb-16">
+                    <h3 class="font-black text-2xl text-red-brand mb-8">KEY CONCEPTS</h3>
+                    <div id="concepts-list" class="flex flex-wrap gap-8"></div>
+                </div>
+
+                <div class="mb-16">
+                    <h3 class="font-black text-2xl text-red-brand mb-8">RESEARCH IDEAS (Select exactly 3)</h3>
+                    <div id="ideas-list" class="space-y-8"></div>
+                </div>
+
+                <button
+                    onclick="researchSelectedIdeas()"
+                    class="w-full bg-red-brand text-white py-16 rounded-lg font-black text-2xl btn-red"
+                >
+                    RESEARCH SELECTED IDEAS
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 4: Final Ranked Results -->
+        <div id="section-results" class="hidden fade-in">
+            <div class="bg-white border-4 border-red-brand rounded-lg p-16 shadow-2xl">
+                <h2 class="text-4xl font-black text-gray-900 mb-16">Step 4: Your Top Research Ideas</h2>
+                <div id="final-ideas-list" class="space-y-16"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-gray-50 border-t-4 border-red-brand py-16 px-8 mt-32">
+        <div class="max-w-6xl mx-auto text-center">
+            <p class="text-gray-600 font-semibold text-lg">Powered by AI Research Discovery</p>
+        </div>
+    </div>
+
+    <script>
+        let currentUserId = null;
+        let currentJobId = null;
+        let currentStep = 1;
+        let allIdeas = [];
+
+        function setStep(step) {
+            currentStep = step;
+
+            // Update progress indicators
+            for (let i = 1; i <= 4; i++) {
+                const indicator = document.getElementById(`step-indicator-${i}`);
+                const circle = indicator.querySelector('div');
+                const text = indicator.querySelector('span');
+
+                if (i <= step) {
+                    circle.className = 'w-12 h-12 rounded-full bg-red-brand text-white flex items-center justify-center font-black text-lg';
+                    text.className = 'ml-8 font-bold text-gray-900';
+                } else {
+                    circle.className = 'w-12 h-12 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center font-black text-lg';
+                    text.className = 'ml-8 font-bold text-gray-500';
+                }
+            }
+
+            // Update progress bars
+            for (let i = 1; i < 4; i++) {
+                const bar = document.getElementById(`progress-${i}-${i+1}`);
+                if (i < step) {
+                    bar.style.width = '100%';
+                } else {
+                    bar.style.width = '0%';
+                }
+            }
+
+            // Show/hide sections
+            document.getElementById('section-profile').classList.add('hidden');
+            document.getElementById('section-upload').classList.add('hidden');
+            document.getElementById('section-ideas').classList.add('hidden');
+            document.getElementById('section-results').classList.add('hidden');
+
+            if (step === 1) {
+                document.getElementById('section-profile').classList.remove('hidden');
+            } else if (step === 2) {
+                document.getElementById('section-upload').classList.remove('hidden');
+            } else if (step === 3) {
+                document.getElementById('section-ideas').classList.remove('hidden');
+            } else if (step === 4) {
+                document.getElementById('section-results').classList.remove('hidden');
+            }
+        }
+
+        function toggleProfileMethod() {
+            const method = document.getElementById('profile-method').value;
+            if (method === 'manual') {
+                document.getElementById('manual-section').classList.remove('hidden');
+                document.getElementById('scholar-section').classList.add('hidden');
+            } else {
+                document.getElementById('manual-section').classList.add('hidden');
+                document.getElementById('scholar-section').classList.remove('hidden');
+            }
+        }
+
+        async function createProfile() {
+            const method = document.getElementById('profile-method').value;
+            let payload = { method };
+
+            if (method === 'manual') {
+                const description = document.getElementById('profile-description').value;
+                const experienceLevel = document.getElementById('experience-level').value;
+
+                if (!description) {
+                    alert('Please enter a research description');
+                    return;
+                }
+
+                payload.description = description;
+                if (experienceLevel) payload.experience_level = experienceLevel;
+            } else {
+                const scholarUrl = document.getElementById('scholar-url').value;
+                if (!scholarUrl) {
+                    alert('Please enter Google Scholar URL');
+                    return;
+                }
+                payload.google_scholar_url = scholarUrl;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5001/api/users/profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentUserId = data.user_id;
+
+                    document.getElementById('profile-result').classList.remove('hidden');
+                    document.getElementById('user-id').textContent = data.user_id.substring(0, 12) + '...';
+                    document.getElementById('profile-level').textContent = data.profile.expertise_level || 'N/A';
+                    document.getElementById('profile-areas').textContent = (data.profile.research_areas || []).join(', ') || 'N/A';
+
+                    // Auto-generate topics from profile
+                    displayAutoTopics(data.profile);
+
+                    setTimeout(() => setStep(2), 1000);
+                } else {
+                    alert(`Error: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        function displayAutoTopics(profile) {
+            const autoTopicsDiv = document.getElementById('auto-topics');
+            autoTopicsDiv.innerHTML = '';
+
+            const topics = [
+                ...(profile.research_areas || []),
+                ...(profile.specific_topics || []).slice(0, 3)
+            ];
+
+            if (topics.length === 0) {
+                autoTopicsDiv.innerHTML = '<span class="text-lg text-gray-500 italic">No topics detected from profile</span>';
+                return;
+            }
+
+            topics.forEach(topic => {
+                const badge = document.createElement('span');
+                badge.className = 'bg-red-100 border-2 border-red-brand text-red-brand px-8 py-4 rounded-lg font-bold text-lg';
+                badge.textContent = topic;
+                autoTopicsDiv.appendChild(badge);
+            });
+        }
+
+        function getAllTopics() {
+            const autoTopicsDiv = document.getElementById('auto-topics');
+            const autoTopics = Array.from(autoTopicsDiv.querySelectorAll('span.bg-red-100')).map(el => el.textContent);
+
+            const manualTopicsInput = document.getElementById('manual-topics').value;
+            const manualTopics = manualTopicsInput ? manualTopicsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+
+            return [...new Set([...autoTopics, ...manualTopics])];
+        }
+
+        async function uploadAndAnalyze() {
+            const fileInput = document.getElementById('pdf-file');
+
+            if (!currentUserId) {
+                alert('Please create a user profile first');
+                return;
+            }
+
+            if (!fileInput.files[0]) {
+                alert('Please select a PDF file');
+                return;
+            }
+
+            const topics = getAllTopics();
+            if (topics.length === 0) {
+                alert('No topics available. Please create a user profile or add manual topics.');
+                return;
+            }
+
+            // Show status
+            document.getElementById('upload-status').classList.remove('hidden');
+            document.getElementById('status-text').textContent = 'Uploading...';
+            document.getElementById('upload-progress-bar').style.width = '20%';
+
+            // Step 1: Upload PDF
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('user_id', currentUserId);
+
+            try {
+                const uploadResponse = await fetch('http://localhost:5001/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const uploadData = await uploadResponse.json();
+
+                if (!uploadResponse.ok) {
+                    alert(`Upload error: ${uploadData.error}`);
+                    return;
+                }
+
+                currentJobId = uploadData.job_id;
+                document.getElementById('job-id').textContent = currentJobId.substring(0, 16) + '...';
+                document.getElementById('upload-progress-bar').style.width = '50%';
+
+                // Step 2: Start quick read
+                document.getElementById('status-text').textContent = 'Analyzing...';
+
+                const analyzeResponse = await fetch('http://localhost:5001/api/analyze/read', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: currentJobId,
+                        topics: topics
+                    })
+                });
+
+                const analyzeData = await analyzeResponse.json();
+
+                if (analyzeResponse.ok) {
+                    document.getElementById('status-text').textContent = 'Complete!';
+                    document.getElementById('upload-progress-bar').style.width = '100%';
+
+                    // Show reader results
+                    displayReaderResults(analyzeData);
+                    setTimeout(() => setStep(3), 1000);
+                } else {
+                    alert(`Analysis error: ${analyzeData.error}`);
+                }
+
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        function displayReaderResults(data) {
+            // Show summary
+            document.getElementById('paper-summary').textContent = data.summary || 'No summary available';
+
+            // Show concepts
+            const conceptsList = document.getElementById('concepts-list');
+            conceptsList.innerHTML = '';
+            (data.concepts || []).forEach(concept => {
+                const badge = document.createElement('span');
+                badge.className = 'bg-red-100 border-2 border-red-brand text-red-brand px-8 py-4 rounded-lg font-bold text-lg';
+                badge.textContent = concept;
+                conceptsList.appendChild(badge);
+            });
+
+            // Show ideas with checkboxes
+            const ideasList = document.getElementById('ideas-list');
+            ideasList.innerHTML = '';
+            allIdeas = data.ideas || [];
+
+            allIdeas.forEach((idea, index) => {
+                const ideaDiv = document.createElement('div');
+                ideaDiv.id = `idea-card-${index}`;
+                ideaDiv.className = 'flex items-start space-x-8 p-8 bg-gray-50 border-4 border-gray-200 rounded-lg cursor-pointer hover:border-red-300 transition-all';
+                ideaDiv.innerHTML = `
+                    <input type="checkbox" id="idea-${index}" value="${index}" class="mt-4 idea-checkbox" onchange="checkIdeaSelection(${index})">
+                    <label for="idea-${index}" class="flex-1 cursor-pointer">
+                        <div class="font-black text-xl text-gray-900 mb-4">${idea.title || 'Idea ' + (index + 1)}</div>
+                        <p class="text-lg text-gray-700 leading-relaxed">${idea.description || ''}</p>
+                    </label>
+                `;
+
+                ideaDiv.addEventListener('click', (e) => {
+                    if (e.target.type !== 'checkbox') {
+                        document.getElementById(`idea-${index}`).click();
+                    }
+                });
+
+                ideasList.appendChild(ideaDiv);
+            });
+        }
+
+        function checkIdeaSelection(index) {
+            const checkbox = document.getElementById(`idea-${index}`);
+            const card = document.getElementById(`idea-card-${index}`);
+            const checked = document.querySelectorAll('.idea-checkbox:checked');
+
+            if (checkbox.checked) {
+                if (checked.length > 3) {
+                    checkbox.checked = false;
+                    alert('Please select exactly 3 ideas');
+                    return;
+                }
+                card.className = 'flex items-start space-x-8 p-8 idea-selected rounded-lg cursor-pointer transition-all';
+            } else {
+                card.className = 'flex items-start space-x-8 p-8 bg-gray-50 border-4 border-gray-200 rounded-lg cursor-pointer hover:border-red-300 transition-all';
+            }
+        }
+
+        async function researchSelectedIdeas() {
+            const selectedCheckboxes = document.querySelectorAll('.idea-checkbox:checked');
+
+            if (selectedCheckboxes.length !== 3) {
+                alert('Please select exactly 3 ideas to research');
+                return;
+            }
+
+            const selectedIndices = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+
+            try {
+                const response = await fetch('http://localhost:5001/api/analyze/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: currentJobId,
+                        selected_ideas: selectedIndices
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Display final results
+                    displayFinalResults(data.top_ideas);
+                    setTimeout(() => setStep(4), 500);
+                } else {
+                    alert(`Research error: ${data.error}`);
+                }
+
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        function displayFinalResults(topIdeas) {
+            const finalList = document.getElementById('final-ideas-list');
+            finalList.innerHTML = '';
+
+            topIdeas.forEach((idea, index) => {
+                const ideaDiv = document.createElement('div');
+                ideaDiv.className = 'bg-white border-4 border-red-brand rounded-lg p-16 shadow-xl';
+
+                const refs = (idea.references || []).slice(0, 3);
+                const refHtml = refs.map(ref => `
+                    <div class="flex items-start space-x-4 mb-4">
+                        <div class="w-4 h-4 bg-red-brand rounded-full mt-2 flex-shrink-0"></div>
+                        <div class="text-lg text-gray-700">
+                            <span class="font-bold">${ref.title || 'No title'}</span> (${ref.year || 'N/A'}) - ${ref.citation_count || 0} citations
+                        </div>
+                    </div>
+                `).join('');
+
+                ideaDiv.innerHTML = `
+                    <div class="flex items-start justify-between mb-8">
+                        <div class="flex items-center space-x-8">
+                            <div class="rank-badge w-24 h-24 rounded-full text-white flex items-center justify-center font-black text-3xl">
+                                ${index + 1}
+                            </div>
+                            <h3 class="font-black text-3xl text-gray-900">${idea.title}</h3>
+                        </div>
+                        <div class="bg-red-brand text-white px-8 py-4 rounded-lg">
+                            <div class="font-black text-2xl">${idea.composite_score}/5</div>
+                            <div class="text-sm font-bold">SCORE</div>
+                        </div>
+                    </div>
+
+                    <p class="text-xl text-gray-700 leading-relaxed mb-16">${idea.description}</p>
+
+                    <div class="grid grid-cols-3 gap-8 mb-16">
+                        <div class="bg-gray-50 border-4 border-gray-200 rounded-lg p-8 text-center">
+                            <div class="font-black text-4xl text-red-brand mb-4">${idea.novelty_score}/5</div>
+                            <div class="font-bold text-lg text-gray-700">Novelty</div>
+                        </div>
+                        <div class="bg-gray-50 border-4 border-gray-200 rounded-lg p-8 text-center">
+                            <div class="font-black text-4xl text-red-brand mb-4">${idea.doability_score}/5</div>
+                            <div class="font-bold text-lg text-gray-700">Doability</div>
+                        </div>
+                        <div class="bg-gray-50 border-4 border-gray-200 rounded-lg p-8 text-center">
+                            <div class="font-black text-4xl text-red-brand mb-4">${idea.topic_match_score}/5</div>
+                            <div class="font-bold text-lg text-gray-700">Topic Match</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-red-50 border-4 border-red-200 rounded-lg p-8 mb-16">
+                        <h4 class="font-black text-xl text-red-brand mb-4">RATIONALE</h4>
+                        <p class="text-lg text-gray-700 leading-relaxed">${idea.rationale || 'N/A'}</p>
+                    </div>
+
+                    <div class="bg-gray-50 border-4 border-gray-200 rounded-lg p-8">
+                        <h4 class="font-black text-xl text-gray-900 mb-8">TOP REFERENCES</h4>
+                        ${refHtml || '<p class="text-lg text-gray-500">No references available</p>'}
+                    </div>
+                `;
+                finalList.appendChild(ideaDiv);
+            });
+        }
+
+        // Initialize
+        setStep(1);
+    </script>
+</body>
+</html>
