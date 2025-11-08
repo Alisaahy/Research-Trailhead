@@ -314,8 +314,8 @@
             document.getElementById('processing-section').style.display = 'block';
 
             try {
-                // Start analysis
-                const response = await fetch(`${API_BASE}/analyze`, {
+                // Phase 1: Quick read
+                const readResponse = await fetch(`${API_BASE}/analyze/read`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -324,7 +324,23 @@
                     })
                 });
 
-                if (!response.ok) throw new Error('Analysis failed');
+                if (!readResponse.ok) throw new Error('Quick read failed');
+                const readData = await readResponse.json();
+
+                // Phase 2: Auto-select first 3 ideas and start deep search
+                const ideas = readData.ideas || [];
+                const selectedIndices = ideas.slice(0, 3).map((_, i) => i); // Select first 3 ideas
+
+                const searchResponse = await fetch(`${API_BASE}/analyze/search`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: currentJobId,
+                        selected_ideas: selectedIndices
+                    })
+                });
+
+                if (!searchResponse.ok) throw new Error('Deep search failed');
 
                 // Poll for status
                 pollStatus();
@@ -367,6 +383,7 @@
             const statusMessages = {
                 'parsing': 'Reading paper...',
                 'reading': 'Extracting concepts and generating ideas...',
+                'ideas_ready': 'Initial ideas ready, starting deep research...',
                 'searching': 'Researching literature and ranking ideas...',
                 'complete': 'Complete!'
             };

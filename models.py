@@ -11,6 +11,48 @@ from datetime import datetime
 Base = declarative_base()
 
 
+class User(Base):
+    """User model - stores researcher profiles"""
+    __tablename__ = 'users'
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Input data
+    description = Column(Text)  # Manual description from user
+    google_scholar_url = Column(String(500))
+    google_scholar_data = Column(JSON)  # Scraped/imported data
+
+    # AI-generated structured profile
+    profile = Column(JSON)  # {
+    #   "expertise_level": "PhD Student" | "Postdoc" | "Professor" | "Industry",
+    #   "research_areas": ["NLP", "Computer Vision"],
+    #   "specific_topics": ["Transformers", "Few-shot Learning"],
+    #   "technical_skills": ["PyTorch", "HuggingFace"],
+    #   "publication_count": 5,
+    #   "h_index": 3,
+    #   "research_style": "Empirical" | "Theoretical" | "Applied",
+    #   "resource_access": "Limited" | "Moderate" | "Extensive",
+    #   "novelty_preference": 0.7,  // 0-1
+    #   "doability_preference": 0.8  // 0-1
+    # }
+
+    # Relationships
+    papers = relationship("Paper", back_populates="user")
+
+    def to_dict(self):
+        """Convert to dictionary for JSON serialization"""
+        return {
+            'id': self.id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'description': self.description,
+            'google_scholar_url': self.google_scholar_url,
+            'profile': self.profile
+        }
+
+
 class Paper(Base):
     """Paper model - stores uploaded research papers"""
     __tablename__ = 'papers'
@@ -24,9 +66,10 @@ class Paper(Base):
     pdf_filename = Column(String(255), nullable=False)
     pdf_size_bytes = Column(Integer)
     upload_timestamp = Column(DateTime, default=datetime.utcnow)
-    user_id = Column(String(36), nullable=True)
+    user_id = Column(String(36), ForeignKey('users.id'), nullable=True)
 
     # Relationships
+    user = relationship("User", back_populates="papers")
     analyses = relationship("Analysis", back_populates="paper", cascade="all, delete-orphan")
 
     def to_dict(self):
@@ -52,9 +95,10 @@ class Analysis(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     paper_id = Column(String(36), ForeignKey('papers.id'), nullable=False)
     selected_topics = Column(JSON)  # List of topic strings
+    user_profile_snapshot = Column(JSON)  # Snapshot of user profile at analysis time
     reader_output = Column(JSON)  # {summary, concepts, findings, limitations, ideas}
     searcher_output = Column(JSON)  # Intermediate searcher results
-    status = Column(String(20), default='pending')  # pending, parsing, reading, searching, complete, error
+    status = Column(String(20), default='pending')  # pending, parsing, reading, ideas_ready, searching, complete, error
     progress = Column(Integer, default=0)  # 0-100
     error_message = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
