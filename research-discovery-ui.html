@@ -40,6 +40,7 @@
             color: var(--gray-900);
             background: #ffffff;
             min-height: 100vh;
+            margin-left: 280px;
         }
 
         .container {
@@ -48,30 +49,34 @@
             padding: 20px;
         }
 
-        /* Header */
+        /* Header - Left Sidebar */
         header {
             background: #ffffff;
-            border-bottom: 1px solid var(--gray-200);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-            position: sticky;
+            border-right: 1px solid var(--gray-200);
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            left: 0;
             top: 0;
+            height: 100vh;
+            width: 280px;
             z-index: 100;
+            display: flex;
+            flex-direction: column;
         }
 
         .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1.5rem 2rem;
+            padding: 2rem 1.5rem;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 3rem;
+            height: 100%;
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 700;
             color: var(--primary-color);
         }
@@ -90,19 +95,73 @@
 
         nav {
             display: flex;
-            gap: 2rem;
-            align-items: center;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
         }
 
         nav a {
             color: var(--gray-700);
             text-decoration: none;
             font-weight: 500;
-            transition: color 0.3s;
+            transition: all 0.3s;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            position: relative;
         }
 
         nav a:hover {
-            color: var(--primary-color);
+            color: var(--gray-900);
+            background: var(--gray-50);
+        }
+
+        nav a.active {
+            color: var(--gray-900);
+            background: var(--gray-100);
+            font-weight: 600;
+        }
+
+        nav a.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 24px;
+            background: var(--gray-900);
+            border-radius: 0 3px 3px 0;
+        }
+
+        /* Scroll Progress Indicator */
+        .scroll-progress {
+            position: absolute;
+            bottom: 2rem;
+            left: 1.5rem;
+            right: 1.5rem;
+        }
+
+        .scroll-progress-label {
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .scroll-progress-bar {
+            height: 4px;
+            background: var(--gray-200);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .scroll-progress-fill {
+            height: 100%;
+            background: var(--gray-900);
+            width: 0%;
+            transition: width 0.1s;
         }
 
         /* Card Styles */
@@ -707,6 +766,39 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            body {
+                margin-left: 0;
+            }
+
+            header {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid var(--gray-200);
+            }
+
+            .header-content {
+                flex-direction: row;
+                justify-content: space-between;
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            nav {
+                flex-direction: row;
+                flex: initial;
+                gap: 1rem;
+            }
+
+            nav a.active::before {
+                display: none;
+            }
+
+            .scroll-progress {
+                display: none;
+            }
+
             .how-it-works {
                 grid-template-columns: 1fr;
             }
@@ -734,12 +826,18 @@
                 <div class="logo-icon">🔬</div>
                 <span>Research Discovery</span>
             </div>
-            <nav>
-                <a href="#profile">Profile</a>
-                <a href="#upload">Upload Paper</a>
-                <a href="#topics">Topics</a>
-                <a href="#results">Results</a>
+            <nav id="nav">
+                <a href="#profile" data-section="profile">Profile</a>
+                <a href="#upload" data-section="upload">Upload Paper</a>
+                <a href="#topics" data-section="topics">Topics</a>
+                <a href="#results" data-section="results">Results</a>
             </nav>
+            <div class="scroll-progress">
+                <div class="scroll-progress-label">Page Progress</div>
+                <div class="scroll-progress-bar">
+                    <div class="scroll-progress-fill" id="scroll-progress-fill"></div>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -1290,8 +1388,45 @@
             }, 100);
         }
 
+        // Scroll progress and active navigation
+        function updateScrollProgress() {
+            const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('scroll-progress-fill').style.width = scrolled + '%';
+        }
+
+        function updateActiveNav() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('nav a');
+
+            let current = '';
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-section') === current) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', () => {
+            updateScrollProgress();
+            updateActiveNav();
+        });
+
         // Initialize
         initializeTopics();
+        updateScrollProgress();
+        updateActiveNav();
     </script>
 </body>
 </html>
