@@ -15,8 +15,9 @@ from dotenv import load_dotenv
 from utils.pdf_parser import extract_text_from_pdf
 from agents.reader import ReaderAgent
 from agents.searcher import SearcherAgent
+from agents.profiler import ProfilerAgent
 from database import get_db, init_db
-from models import Paper, Analysis, ResearchIdea, Reference
+from models import User, Paper, Analysis, ResearchIdea, Reference
 
 # Load environment variables
 load_dotenv()
@@ -46,10 +47,163 @@ def index():
     return send_from_directory('.', 'index.html')
 
 
+@app.route('/test.html')
+def test_ui():
+    """Serve the test UI page"""
+    return send_from_directory('.', 'test.html')
+
+
+# ============================================================================
+# User Profile Endpoints
+# ============================================================================
+
+@app.route('/api/users/profile', methods=['POST'])
+def create_user_profile():
+    """
+    Create a new user profile from manual description or Google Scholar
+
+    Expects JSON:
+    {
+        "method": "manual" | "scholar",
+        "description": "text" (if manual),
+        "experience_level": "PhD Student" (optional, if manual),
+        "google_scholar_url": "url" (if scholar)
+    }
+
+    Returns: {"user_id": "uuid", "profile": {...}}
+    """
+    db = get_db()
+    try:
+        data = request.get_json()
+        method = data.get('method', 'manual')
+
+        # Create user record
+        user = User(id=str(uuid.uuid4()))
+
+        # Initialize profiler agent
+        profiler = ProfilerAgent()
+
+        if method == 'manual':
+            description = data.get('description', '')
+            experience_level = data.get('experience_level')
+
+            if not description:
+                return jsonify({'error': 'Description is required for manual method'}), 400
+
+            # Store input
+            user.description = description
+
+            # Analyze and create profile
+            profile = profiler.analyze_description(description, experience_level)
+            user.profile = profile
+
+        elif method == 'scholar':
+            scholar_url = data.get('google_scholar_url', '')
+
+            if not scholar_url:
+                return jsonify({'error': 'Google Scholar URL is required for scholar method'}), 400
+
+            # Store URL
+            user.google_scholar_url = scholar_url
+
+            # TODO: Implement scholar scraping
+            # For now, return error
+            return jsonify({'error': 'Google Scholar import not yet implemented. Please use manual method.'}), 501
+
+        else:
+            return jsonify({'error': 'Invalid method. Use "manual" or "scholar"'}), 400
+
+        # Save to database
+        db.add(user)
+        db.commit()
+
+        return jsonify({
+            'user_id': user.id,
+            'profile': user.profile,
+            'message': 'Profile created successfully'
+        }), 201
+
+    except Exception as e:
+        db.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        db.close()
+
+
+@app.route('/api/users/<user_id>/profile', methods=['GET'])
+def get_user_profile(user_id):
+    """
+    Get a user's profile
+
+    Returns: {"user_id": "uuid", "profile": {...}}
+    """
+    db = get_db()
+    try:
+        user = db.query(User).filter_by(id=user_id).first()
+
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        return jsonify(user.to_dict()), 200
+
+    finally:
+        db.close()
+
+
+@app.route('/api/users/<user_id>/profile', methods=['PUT'])
+def update_user_profile(user_id):
+    """
+    Update a user's profile
+
+    Expects JSON:
+    {
+        "description": "new description" (optional),
+        "profile": {...} (optional, direct profile update)
+    }
+
+    Returns: {"user_id": "uuid", "profile": {...}}
+    """
+    db = get_db()
+    try:
+        user = db.query(User).filter_by(id=user_id).first()
+
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        data = request.get_json()
+
+        # If description is provided, re-analyze
+        if 'description' in data:
+            user.description = data['description']
+            profiler = ProfilerAgent()
+            user.profile = profiler.analyze_description(data['description'])
+            user.updated_at = datetime.utcnow()
+
+        # If profile is directly provided, update it
+        elif 'profile' in data:
+            user.profile = data['profile']
+            user.updated_at = datetime.utcnow()
+
+        db.commit()
+
+        return jsonify(user.to_dict()), 200
+
+    except Exception as e:
+        db.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        db.close()
+
+
+# ============================================================================
+# Paper Upload and Analysis Endpoints
+# ============================================================================
+
 @app.route('/api/upload', methods=['POST'])
 def upload_paper():
     """
     Upload a research paper PDF
+    Expects: file (multipart), user_id (optional form field)
     Returns: job_id for tracking the analysis
     """
     try:
@@ -58,6 +212,7 @@ def upload_paper():
             return jsonify({'error': 'No file provided'}), 400
 
         file = request.files['file']
+        user_id = request.form.get('user_id')  # Optional user_id from form
 
         if file.filename == '':
             return jsonify({'error': 'No file selected'}), 400
@@ -81,11 +236,18 @@ def upload_paper():
         # Create database records
         db = get_db()
         try:
+            # Verify user exists if user_id provided
+            if user_id:
+                user = db.query(User).filter_by(id=user_id).first()
+                if not user:
+                    return jsonify({'error': f'User not found: {user_id}'}), 404
+
             # Create paper record
             paper = Paper(
                 id=paper_id,
                 pdf_filename=pdf_filename,
-                pdf_size_bytes=file_size
+                pdf_size_bytes=file_size,
+                user_id=user_id  # Link to user
             )
             db.add(paper)
 
@@ -116,11 +278,12 @@ def upload_paper():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/analyze', methods=['POST'])
-def analyze_paper():
+@app.route('/api/analyze/read', methods=['POST'])
+def analyze_paper_read():
     """
-    Start analysis of uploaded paper
+    Phase 1: Quick read of paper with Reader Agent (1-2 min)
     Expects: job_id (analysis_id), topics (array of topic strings)
+    Returns: Initial research ideas for user to review
     """
     job_id = None
     db = get_db()
@@ -145,12 +308,18 @@ def analyze_paper():
         analysis.selected_topics = topics
         analysis.status = 'parsing'
         analysis.progress = 20
-        db.commit()
 
-        # Step 1: Parse PDF
+        # Get and store user profile snapshot
         paper = db.query(Paper).filter_by(id=analysis.paper_id).first()
         if not paper:
             raise Exception('Paper not found')
+
+        if paper.user_id:
+            user = db.query(User).filter_by(id=paper.user_id).first()
+            if user and user.profile:
+                analysis.user_profile_snapshot = user.profile
+
+        db.commit()
 
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], paper.pdf_filename)
         paper_text = extract_text_from_pdf(filepath)
@@ -163,47 +332,139 @@ def analyze_paper():
 
         # Update status to reading
         analysis.status = 'reading'
-        analysis.progress = 30
+        analysis.progress = 40
         db.commit()
 
-        # Step 2: Reader Agent
+        # Step 2: Reader Agent (Quick analysis)
         reader = ReaderAgent()
         reader_results = reader.analyze_paper(paper_text, topics)
 
         # Store reader output
         analysis.reader_output = reader_results
-        analysis.status = 'searching'
-        analysis.progress = 50
+        analysis.status = 'ideas_ready'  # New status: waiting for user to select ideas
+        analysis.progress = 60
         db.commit()
 
-        # Step 3: Searcher Agent
+        return jsonify({
+            'job_id': job_id,
+            'status': 'ideas_ready',
+            'message': 'Initial ideas generated. Please select 3 ideas to research further.',
+            'summary': reader_results.get('summary', ''),
+            'concepts': reader_results.get('concepts', []),
+            'ideas': reader_results.get('ideas', [])
+        }), 200
+
+    except Exception as e:
+        db.rollback()
+        if job_id:
+            try:
+                analysis = db.query(Analysis).filter_by(id=job_id).first()
+                if analysis:
+                    analysis.status = 'error'
+                    analysis.error_message = str(e)
+                    db.commit()
+            except:
+                pass
+        return jsonify({'error': str(e)}), 500
+    finally:
+        db.close()
+
+
+@app.route('/api/analyze/search', methods=['POST'])
+def analyze_paper_search():
+    """
+    Phase 2: Deep literature search for selected ideas (5-10 min)
+    Expects: job_id (analysis_id), selected_ideas (array of idea indices 0-based)
+    Returns: Final ranked ideas with literature review
+    """
+    job_id = None
+    db = get_db()
+
+    try:
+        data = request.get_json()
+        job_id = data.get('job_id')
+        selected_idea_indices = data.get('selected_ideas', [])
+
+        if not job_id:
+            return jsonify({'error': 'job_id is required'}), 400
+
+        if not selected_idea_indices or len(selected_idea_indices) != 3:
+            return jsonify({'error': 'Please select exactly 3 ideas'}), 400
+
+        # Get analysis record
+        analysis = db.query(Analysis).filter_by(id=job_id).first()
+        if not analysis:
+            return jsonify({'error': 'Analysis not found'}), 404
+
+        if analysis.status != 'ideas_ready':
+            return jsonify({'error': f'Analysis is not ready for search. Current status: {analysis.status}'}), 400
+
+        if not analysis.reader_output or 'ideas' not in analysis.reader_output:
+            return jsonify({'error': 'No ideas found. Please run /api/analyze/read first'}), 400
+
+        # Get selected ideas from reader output
+        all_ideas = analysis.reader_output['ideas']
+        selected_ideas = []
+        for idx in selected_idea_indices:
+            if 0 <= idx < len(all_ideas):
+                selected_ideas.append(all_ideas[idx])
+            else:
+                return jsonify({'error': f'Invalid idea index: {idx}. Valid range: 0-{len(all_ideas)-1}'}), 400
+
+        # Update status to searching
+        analysis.status = 'searching'
+        analysis.progress = 70
+        db.commit()
+
+        # Step 3: Searcher Agent (Deep research on selected ideas only)
         searcher = SearcherAgent()
-        final_results = searcher.research_ideas(reader_results['ideas'], topics)
+        final_results = searcher.research_ideas(selected_ideas, analysis.selected_topics)
 
         # Store searcher output
         analysis.searcher_output = final_results
 
         # Create ResearchIdea records for top 3 ideas
+        # Note: SearcherAgent returns {idea: {...}, novelty_assessment: {...}, etc}
+        # We need to flatten this for storage and API response
+        flattened_ideas = []
         for rank, idea_data in enumerate(final_results['top_ideas'], 1):
+            # Extract nested idea fields
+            idea = idea_data.get('idea', {})
+
+            # Flatten the structure
+            flattened_idea = {
+                'title': idea.get('title', ''),
+                'description': idea.get('description', ''),
+                'rationale': idea.get('rationale', ''),
+                'novelty_score': idea_data.get('novelty_assessment', {}).get('novelty_score'),
+                'doability_score': idea_data.get('doability_assessment', {}).get('doability_score'),
+                'topic_match_score': idea_data.get('topic_match_score'),
+                'composite_score': idea_data.get('composite_score'),
+                'novelty_assessment': idea_data.get('novelty_assessment', {}),
+                'doability_assessment': idea_data.get('doability_assessment', {}),
+                'literature_synthesis': idea_data.get('literature_synthesis', {})
+            }
+            flattened_ideas.append(flattened_idea)
+
             research_idea = ResearchIdea(
                 analysis_id=analysis.id,
                 rank=rank,
-                title=idea_data.get('title', ''),
-                description=idea_data.get('description', ''),
-                rationale=idea_data.get('rationale', ''),
-                novelty_score=idea_data.get('novelty_score'),
-                doability_score=idea_data.get('doability_score'),
-                topic_match_score=idea_data.get('topic_match_score'),
-                composite_score=idea_data.get('composite_score'),
-                novelty_assessment=idea_data.get('novelty_assessment', {}),
-                doability_assessment=idea_data.get('doability_assessment', {}),
-                literature_synthesis=idea_data.get('literature_synthesis', {})
+                title=flattened_idea['title'],
+                description=flattened_idea['description'],
+                rationale=flattened_idea['rationale'],
+                novelty_score=flattened_idea['novelty_score'],
+                doability_score=flattened_idea['doability_score'],
+                topic_match_score=flattened_idea['topic_match_score'],
+                composite_score=flattened_idea['composite_score'],
+                novelty_assessment=flattened_idea['novelty_assessment'],
+                doability_assessment=flattened_idea['doability_assessment'],
+                literature_synthesis=flattened_idea['literature_synthesis']
             )
             db.add(research_idea)
             db.flush()  # Get the research_idea.id
 
             # Create Reference records for this idea
-            for ref_data in idea_data.get('references', []):
+            for ref_data in idea_data.get('papers', []):
                 reference = Reference(
                     idea_id=research_idea.id,
                     title=ref_data.get('title', ''),
@@ -212,9 +473,9 @@ def analyze_paper():
                     venue=ref_data.get('venue', ''),
                     abstract=ref_data.get('abstract', ''),
                     url=ref_data.get('url', ''),
-                    citation_count=ref_data.get('citationCount', 0),
-                    relevance_category=ref_data.get('relevance_category', ''),
-                    summary=ref_data.get('summary', '')
+                    citation_count=ref_data.get('citations', 0),
+                    relevance_category='',  # Not provided by searcher
+                    summary=''  # Not provided by searcher
                 )
                 db.add(reference)
 
@@ -227,7 +488,8 @@ def analyze_paper():
         return jsonify({
             'job_id': job_id,
             'status': 'complete',
-            'message': 'Analysis complete'
+            'message': 'Deep research complete',
+            'top_ideas': flattened_ideas  # Return flattened structure for UI
         }), 200
 
     except Exception as e:

@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Discovery Agent - Complete Testing Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen p-8">
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Research Discovery Agent - Complete Test UI</h1>
+            <p class="text-gray-600 mt-2">Full workflow: Profile → Upload → Read → Select Ideas → Deep Research → Final Ranking</p>
+        </header>
+
+        <!-- Workflow Steps -->
+        <div class="grid grid-cols-5 gap-4 mb-8">
+            <div id="step-1" class="bg-blue-100 border-2 border-blue-500 rounded p-3 text-center">
+                <div class="font-bold text-sm">Step 1</div>
+                <div class="text-xs mt-1">User Profile</div>
+            </div>
+            <div id="step-2" class="bg-gray-100 border-2 border-gray-300 rounded p-3 text-center">
+                <div class="font-bold text-sm">Step 2</div>
+                <div class="text-xs mt-1">Upload Paper</div>
+            </div>
+            <div id="step-3" class="bg-gray-100 border-2 border-gray-300 rounded p-3 text-center">
+                <div class="font-bold text-sm">Step 3</div>
+                <div class="text-xs mt-1">Quick Read</div>
+            </div>
+            <div id="step-4" class="bg-gray-100 border-2 border-gray-300 rounded p-3 text-center">
+                <div class="font-bold text-sm">Step 4</div>
+                <div class="text-xs mt-1">Select Ideas</div>
+            </div>
+            <div id="step-5" class="bg-gray-100 border-2 border-gray-300 rounded p-3 text-center">
+                <div class="font-bold text-sm">Step 5</div>
+                <div class="text-xs mt-1">Final Results</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-6">
+            <!-- LEFT COLUMN: User Profile -->
+            <div class="space-y-6">
+                <!-- Step 1: Create Profile -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-semibold mb-4">Step 1: User Profile</h2>
+
+                    <!-- Manual Profile -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Method</label>
+                        <select id="profile-method" class="w-full border border-gray-300 rounded p-2 text-sm" onchange="toggleProfileMethod()">
+                            <option value="manual">Manual Description</option>
+                            <option value="scholar">Google Scholar</option>
+                        </select>
+                    </div>
+
+                    <div id="manual-section">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2">Research Description</label>
+                            <textarea
+                                id="profile-description"
+                                rows="4"
+                                class="w-full border border-gray-300 rounded p-2 text-sm"
+                                placeholder="e.g., I am a PhD student working on transformers and NLP..."
+                            ></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2">Experience Level</label>
+                            <select id="experience-level" class="w-full border border-gray-300 rounded p-2 text-sm">
+                                <option value="">Auto-detect</option>
+                                <option value="Undergraduate Student">Undergraduate Student</option>
+                                <option value="PhD Student">PhD Student</option>
+                                <option value="Postdoc">Postdoc</option>
+                                <option value="Assistant Professor">Assistant Professor</option>
+                                <option value="Associate/Full Professor">Associate/Full Professor</option>
+                                <option value="Industry Researcher">Industry Researcher</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="scholar-section" class="hidden">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2">Google Scholar URL</label>
+                            <input
+                                type="text"
+                                id="scholar-url"
+                                class="w-full border border-gray-300 rounded p-2 text-sm"
+                                placeholder="https://scholar.google.com/citations?user=..."
+                            >
+                        </div>
+                    </div>
+
+                    <button
+                        onclick="createProfile()"
+                        class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                    >
+                        Create Profile
+                    </button>
+
+                    <div id="profile-result" class="mt-4 hidden">
+                        <h3 class="font-semibold text-sm mb-2 text-green-600">✓ Profile Created</h3>
+                        <div class="bg-gray-50 p-3 rounded text-xs">
+                            <div class="mb-2"><span class="font-semibold">User ID:</span> <span id="user-id" class="font-mono text-xs"></span></div>
+                            <div class="mb-1"><span class="font-semibold">Level:</span> <span id="profile-level"></span></div>
+                            <div class="mb-1"><span class="font-semibold">Areas:</span> <span id="profile-areas"></span></div>
+                            <div><span class="font-semibold">Style:</span> <span id="profile-style"></span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Existing Users -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-3">Saved Profiles</h3>
+                    <button
+                        onclick="loadUsers()"
+                        class="w-full bg-gray-600 text-white py-2 rounded hover:bg-gray-700 mb-3 text-sm"
+                    >
+                        Load Users
+                    </button>
+                    <div id="users-list" class="space-y-2 max-h-48 overflow-auto"></div>
+                </div>
+            </div>
+
+            <!-- MIDDLE COLUMN: Upload & Analysis -->
+            <div class="space-y-6">
+                <!-- Step 2: Upload Paper -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-semibold mb-4">Step 2: Upload Paper</h2>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">PDF File</label>
+                        <input
+                            type="file"
+                            id="pdf-file"
+                            accept=".pdf"
+                            class="w-full border border-gray-300 rounded p-2 text-sm"
+                        >
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Auto-detected Topics</label>
+                        <div id="auto-topics" class="mb-2 flex flex-wrap gap-1 min-h-[32px] p-2 bg-gray-50 rounded border">
+                            <span class="text-xs text-gray-500 italic">Topics will be auto-generated from your profile</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Additional Topics (Optional)</label>
+                        <input
+                            type="text"
+                            id="manual-topics"
+                            class="w-full border border-gray-300 rounded p-2 text-sm"
+                            placeholder="e.g., Graph Neural Networks, Attention Mechanisms (comma-separated)"
+                        >
+                        <p class="text-xs text-gray-500 mt-1">Add specific topics not in your profile</p>
+                    </div>
+
+                    <button
+                        onclick="uploadAndAnalyze()"
+                        class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
+                    >
+                        Upload & Quick Read (1-2 min)
+                    </button>
+
+                    <div id="analysis-status" class="mt-4 hidden">
+                        <div class="bg-blue-50 p-3 rounded">
+                            <p class="text-sm font-semibold">Status: <span id="status-text"></span></p>
+                            <p class="text-sm">Progress: <span id="progress-text"></span>%</p>
+                            <p class="text-xs text-gray-600 mt-1">Job ID: <span id="job-id" class="font-mono text-xs"></span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Reader Results -->
+                <div id="reader-results" class="bg-white rounded-lg shadow p-6 hidden">
+                    <h2 class="text-xl font-semibold mb-4">Step 3: Initial Ideas</h2>
+
+                    <div class="mb-4">
+                        <h3 class="font-semibold text-sm mb-2">Paper Summary</h3>
+                        <p id="paper-summary" class="text-xs text-gray-700 bg-gray-50 p-2 rounded max-h-24 overflow-auto"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h3 class="font-semibold text-sm mb-2">Key Concepts</h3>
+                        <div id="concepts-list" class="flex flex-wrap gap-1"></div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-sm mb-2">Research Ideas (Select 3)</h3>
+                        <div id="ideas-list" class="space-y-2 max-h-64 overflow-auto"></div>
+                    </div>
+
+                    <button
+                        onclick="researchSelectedIdeas()"
+                        class="w-full mt-4 bg-purple-600 text-white py-2 rounded hover:bg-purple-700"
+                    >
+                        Deep Research Selected (5-10 min)
+                    </button>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Final Results -->
+            <div class="space-y-6">
+                <!-- Step 4: Final Ranked Results -->
+                <div id="final-results" class="bg-white rounded-lg shadow p-6 hidden">
+                    <h2 class="text-xl font-semibold mb-4">Step 5: Final Ranked Ideas</h2>
+                    <div id="final-ideas-list" class="space-y-4 max-h-[600px] overflow-auto"></div>
+                </div>
+
+                <!-- API Log -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-3">API Log</h3>
+                    <div id="api-log" class="bg-gray-900 text-green-400 p-3 rounded text-xs font-mono h-64 overflow-auto">
+                        <p>> Ready for testing...</p>
+                    </div>
+                    <button
+                        onclick="clearLog()"
+                        class="w-full mt-2 bg-gray-600 text-white py-1 text-xs rounded hover:bg-gray-700"
+                    >
+                        Clear Log
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Status -->
+        <div class="mt-8 bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Database Status</h2>
+            <button
+                onclick="checkDatabase()"
+                class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+            >
+                Check Database
+            </button>
+            <div id="db-status" class="mt-4 grid grid-cols-4 gap-4"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentUserId = null;
+        let currentJobId = null;
+        let currentStep = 1;
+
+        function setStep(step) {
+            currentStep = step;
+            for (let i = 1; i <= 5; i++) {
+                const el = document.getElementById(`step-${i}`);
+                if (i <= step) {
+                    el.className = 'bg-blue-100 border-2 border-blue-500 rounded p-3 text-center';
+                } else {
+                    el.className = 'bg-gray-100 border-2 border-gray-300 rounded p-3 text-center';
+                }
+            }
+        }
+
+        function log(message, type = 'info') {
+            const logEl = document.getElementById('api-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'text-red-400' : type === 'success' ? 'text-green-400' : 'text-blue-400';
+            logEl.innerHTML += `<p class="${color}">[${timestamp}] ${message}</p>`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('api-log').innerHTML = '<p>> Log cleared...</p>';
+        }
+
+        function toggleProfileMethod() {
+            const method = document.getElementById('profile-method').value;
+            if (method === 'manual') {
+                document.getElementById('manual-section').classList.remove('hidden');
+                document.getElementById('scholar-section').classList.add('hidden');
+            } else {
+                document.getElementById('manual-section').classList.add('hidden');
+                document.getElementById('scholar-section').classList.remove('hidden');
+            }
+        }
+
+        async function createProfile() {
+            const method = document.getElementById('profile-method').value;
+            let payload = { method };
+
+            if (method === 'manual') {
+                const description = document.getElementById('profile-description').value;
+                const experienceLevel = document.getElementById('experience-level').value;
+
+                if (!description) {
+                    alert('Please enter a research description');
+                    return;
+                }
+
+                payload.description = description;
+                if (experienceLevel) payload.experience_level = experienceLevel;
+            } else {
+                const scholarUrl = document.getElementById('scholar-url').value;
+                if (!scholarUrl) {
+                    alert('Please enter Google Scholar URL');
+                    return;
+                }
+                payload.google_scholar_url = scholarUrl;
+            }
+
+            log('Creating user profile...', 'info');
+
+            try {
+                const response = await fetch('/api/users/profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    log('✓ Profile created successfully!', 'success');
+                    currentUserId = data.user_id;
+
+                    document.getElementById('profile-result').classList.remove('hidden');
+                    document.getElementById('user-id').textContent = data.user_id;
+                    document.getElementById('profile-level').textContent = data.profile.expertise_level || 'N/A';
+                    document.getElementById('profile-areas').textContent = (data.profile.research_areas || []).join(', ') || 'N/A';
+                    document.getElementById('profile-style').textContent = data.profile.research_style || 'N/A';
+
+                    // Auto-generate topics from profile
+                    displayAutoTopics(data.profile);
+
+                    setStep(2);
+                } else {
+                    log(`✗ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log(`✗ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadUsers() {
+            log('Loading users...', 'info');
+            if (currentUserId) {
+                document.getElementById('users-list').innerHTML = `
+                    <div class="p-2 bg-gray-50 rounded border text-xs">
+                        <p class="font-mono">${currentUserId.substring(0, 8)}...</p>
+                        <button onclick="selectUser('${currentUserId}')" class="text-blue-600 mt-1">Use this user</button>
+                    </div>
+                `;
+                log('Users loaded', 'success');
+            } else {
+                document.getElementById('users-list').innerHTML = '<p class="text-sm text-gray-500">Create a profile first</p>';
+            }
+        }
+
+        function selectUser(userId) {
+            currentUserId = userId;
+            log(`Selected user: ${userId.substring(0, 8)}...`, 'success');
+        }
+
+        function displayAutoTopics(profile) {
+            const autoTopicsDiv = document.getElementById('auto-topics');
+            autoTopicsDiv.innerHTML = '';
+
+            // Combine research_areas and specific_topics
+            const topics = [
+                ...(profile.research_areas || []),
+                ...(profile.specific_topics || []).slice(0, 3)  // Take top 3 specific topics
+            ];
+
+            if (topics.length === 0) {
+                autoTopicsDiv.innerHTML = '<span class="text-xs text-gray-500 italic">No topics detected from profile</span>';
+                return;
+            }
+
+            topics.forEach(topic => {
+                const badge = document.createElement('span');
+                badge.className = 'bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs';
+                badge.textContent = topic;
+                autoTopicsDiv.appendChild(badge);
+            });
+        }
+
+        function getAllTopics() {
+            const autoTopicsDiv = document.getElementById('auto-topics');
+            const autoTopics = Array.from(autoTopicsDiv.querySelectorAll('span.bg-blue-100')).map(el => el.textContent);
+
+            const manualTopicsInput = document.getElementById('manual-topics').value;
+            const manualTopics = manualTopicsInput ? manualTopicsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+
+            return [...new Set([...autoTopics, ...manualTopics])]; // Remove duplicates
+        }
+
+        async function uploadAndAnalyze() {
+            const fileInput = document.getElementById('pdf-file');
+
+            if (!currentUserId) {
+                alert('Please create a user profile first');
+                return;
+            }
+
+            if (!fileInput.files[0]) {
+                alert('Please select a PDF file');
+                return;
+            }
+
+            const topics = getAllTopics();
+            if (topics.length === 0) {
+                alert('No topics available. Please create a user profile or add manual topics.');
+                return;
+            }
+
+            log('Uploading PDF...', 'info');
+            log(`Using topics: ${topics.join(', ')}`, 'info');
+
+            // Step 1: Upload PDF
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('user_id', currentUserId);  // Link paper to user
+
+            try {
+                const uploadResponse = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const uploadData = await uploadResponse.json();
+
+                if (!uploadResponse.ok) {
+                    log(`✗ Upload error: ${uploadData.error}`, 'error');
+                    return;
+                }
+
+                log(`✓ PDF uploaded. Job ID: ${uploadData.job_id}`, 'success');
+                currentJobId = uploadData.job_id;
+                setStep(3);
+
+                // Step 2: Start quick read (Phase 1)
+                log('Starting quick read (1-2 min)...', 'info');
+
+                const analyzeResponse = await fetch('/api/analyze/read', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: currentJobId,
+                        topics: topics
+                    })
+                });
+
+                const analyzeData = await analyzeResponse.json();
+
+                if (analyzeResponse.ok) {
+                    log('✓ Quick read complete! Review ideas below.', 'success');
+                    document.getElementById('analysis-status').classList.remove('hidden');
+                    document.getElementById('job-id').textContent = currentJobId;
+                    document.getElementById('status-text').textContent = analyzeData.status;
+                    document.getElementById('progress-text').textContent = analyzeData.progress || 60;
+
+                    // Show reader results
+                    displayReaderResults(analyzeData);
+                    setStep(4);
+                } else {
+                    log(`✗ Analysis error: ${analyzeData.error}`, 'error');
+                }
+
+            } catch (error) {
+                log(`✗ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function displayReaderResults(data) {
+            // Show summary
+            document.getElementById('paper-summary').textContent = data.summary || 'No summary available';
+
+            // Show concepts
+            const conceptsList = document.getElementById('concepts-list');
+            conceptsList.innerHTML = '';
+            (data.concepts || []).forEach(concept => {
+                const badge = document.createElement('span');
+                badge.className = 'bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs';
+                badge.textContent = concept;
+                conceptsList.appendChild(badge);
+            });
+
+            // Show ideas with checkboxes
+            const ideasList = document.getElementById('ideas-list');
+            ideasList.innerHTML = '';
+
+            (data.ideas || []).forEach((idea, index) => {
+                const ideaDiv = document.createElement('div');
+                ideaDiv.className = 'flex items-start space-x-2 p-2 bg-gray-50 rounded border';
+                ideaDiv.innerHTML = `
+                    <input type="checkbox" id="idea-${index}" value="${index}" class="mt-1 idea-checkbox" onchange="checkIdeaSelection()">
+                    <label for="idea-${index}" class="text-xs flex-1 cursor-pointer">
+                        <span class="font-semibold text-gray-900">${idea.title || 'Idea ' + (index + 1)}</span>
+                        <p class="text-gray-600 mt-1">${idea.description || ''}</p>
+                    </label>
+                `;
+                ideasList.appendChild(ideaDiv);
+            });
+
+            document.getElementById('reader-results').classList.remove('hidden');
+        }
+
+        function checkIdeaSelection() {
+            const checked = document.querySelectorAll('.idea-checkbox:checked');
+            if (checked.length > 3) {
+                checked[checked.length - 1].checked = false;
+                alert('Please select exactly 3 ideas');
+            }
+        }
+
+        async function researchSelectedIdeas() {
+            const selectedCheckboxes = document.querySelectorAll('.idea-checkbox:checked');
+
+            if (selectedCheckboxes.length !== 3) {
+                alert('Please select exactly 3 ideas to research');
+                return;
+            }
+
+            const selectedIndices = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+
+            log('Starting deep research on selected ideas (5-10 min)...', 'info');
+
+            try {
+                const response = await fetch('/api/analyze/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: currentJobId,
+                        selected_ideas: selectedIndices
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    log('✓ Deep research complete!', 'success');
+                    document.getElementById('status-text').textContent = 'complete';
+                    document.getElementById('progress-text').textContent = '100';
+
+                    // Display final results
+                    displayFinalResults(data.top_ideas);
+                    setStep(5);
+                } else {
+                    log(`✗ Research error: ${data.error}`, 'error');
+                }
+
+            } catch (error) {
+                log(`✗ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function displayFinalResults(topIdeas) {
+            const finalList = document.getElementById('final-ideas-list');
+            finalList.innerHTML = '';
+
+            topIdeas.forEach((idea, index) => {
+                const ideaDiv = document.createElement('div');
+                ideaDiv.className = 'p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-2 border-orange-200';
+
+                const refs = (idea.references || []).slice(0, 3);
+                const refHtml = refs.map(ref => `
+                    <div class="text-xs text-gray-700 mb-1">
+                        • ${ref.title || 'No title'} (${ref.year || 'N/A'}) - ${ref.citation_count || 0} citations
+                    </div>
+                `).join('');
+
+                ideaDiv.innerHTML = `
+                    <div class="flex items-start justify-between mb-2">
+                        <p class="font-bold text-sm text-gray-900">🏆 Rank ${index + 1}: ${idea.title}</p>
+                        <span class="bg-orange-200 text-orange-900 px-2 py-1 rounded text-xs font-bold">Score: ${idea.composite_score}/5</span>
+                    </div>
+                    <p class="text-xs text-gray-700 mb-3">${idea.description}</p>
+                    <div class="grid grid-cols-3 gap-2 mb-3">
+                        <div class="bg-white rounded p-2 text-center">
+                            <div class="text-xs text-gray-600">Novelty</div>
+                            <div class="font-bold text-sm">${idea.novelty_score}/5</div>
+                        </div>
+                        <div class="bg-white rounded p-2 text-center">
+                            <div class="text-xs text-gray-600">Doability</div>
+                            <div class="font-bold text-sm">${idea.doability_score}/5</div>
+                        </div>
+                        <div class="bg-white rounded p-2 text-center">
+                            <div class="text-xs text-gray-600">Topic Match</div>
+                            <div class="font-bold text-sm">${idea.topic_match_score}/5</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded p-2 mb-2">
+                        <p class="text-xs"><span class="font-semibold">Rationale:</span> ${idea.rationale || 'N/A'}</p>
+                    </div>
+                    <div class="bg-white rounded p-2">
+                        <p class="text-xs font-semibold mb-1">Top References:</p>
+                        ${refHtml || '<p class="text-xs text-gray-500">No references</p>'}
+                    </div>
+                `;
+                finalList.appendChild(ideaDiv);
+            });
+
+            document.getElementById('final-results').classList.remove('hidden');
+        }
+
+        async function checkDatabase() {
+            log('Checking database...', 'info');
+
+            try {
+                const response = await fetch('/api/papers');
+                const data = await response.json();
+
+                document.getElementById('db-status').innerHTML = `
+                    <div class="bg-blue-50 p-4 rounded">
+                        <p class="font-semibold">Papers</p>
+                        <p class="text-2xl">${data.total || 0}</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded">
+                        <p class="font-semibold">Users</p>
+                        <p class="text-2xl">${currentUserId ? '1+' : '0'}</p>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded">
+                        <p class="font-semibold">Current Job</p>
+                        <p class="text-sm">${currentJobId ? currentJobId.substring(0, 8) + '...' : 'None'}</p>
+                    </div>
+                    <div class="bg-yellow-50 p-4 rounded">
+                        <p class="font-semibold">Server</p>
+                        <p class="text-sm">Running</p>
+                    </div>
+                `;
+
+                log('✓ Database checked', 'success');
+            } catch (error) {
+                log(`✗ Error: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
