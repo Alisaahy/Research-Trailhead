@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Trailhead</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sage': {
+                            50: '#f6f7f6',
+                            100: '#e3e7e2',
+                            200: '#c7cfc5',
+                            300: '#a4b0a1',
+                            400: '#8B9D83',
+                            500: '#6d7d68',
+                            600: '#596554',
+                            700: '#495244',
+                            800: '#3d4439',
+                            900: '#343a31'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #FFFFFF;
+            color: #111827;
+            line-height: 1.5;
+            display: flex;
+        }
+
+        /* Progress Bar - Left Side */
+        .progress-bar {
+            position: fixed;
+            left: 15px;
+            top: 20px;
+            bottom: 0;
+            width: 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 32px 16px;
+            z-index: 10;
+        }
+
+        .progress-steps {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 80px;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            gap: 12px;
+            min-height: 24px;
+        }
+
+        .progress-line {
+            position: absolute;
+            left: 5px;
+            top: 22px;
+            width: 2px;
+            height: 80px;
+            background: rgba(139, 157, 131, 0.08);
+            z-index: 0;
+            transition: background 0.3s ease;
+        }
+
+        .progress-step:last-child .progress-line {
+            display: none;
+        }
+
+        .progress-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(139, 157, 131, 0.1);
+            border: 2px solid rgba(139, 157, 131, 0.15);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+            flex-shrink: 0;
+        }
+
+        .progress-step.active .progress-dot {
+            background: rgba(139, 157, 131, 0.9);
+            border-color: rgba(139, 157, 131, 1);
+            border-width: 3px;
+            width: 16px;
+            height: 16px;
+            box-shadow: 0 0 0 3px rgba(139, 157, 131, 0.2);
+        }
+
+        .progress-step.completed .progress-dot {
+            background: rgba(139, 157, 131, 0.5);
+            border-color: rgba(139, 157, 131, 0.6);
+        }
+
+
+        .progress-label {
+            font-size: 12px;
+            color: rgba(139, 157, 131, 0.25);
+            font-weight: 400;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress-step.active .progress-label {
+            color: rgba(139, 157, 131, 0.95);
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .progress-step.completed .progress-label {
+            color: rgba(139, 157, 131, 0.4);
+        }
+
+        /* Main Content - Shifted right for progress bar */
+        .main-content {
+            margin-left: 160px;
+            flex: 1;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 32px 16px;
+        }
+
+        /* Header styles - centered and bold */
+        header {
+            text-align: center;
+            margin-bottom: 48px;
+            padding-top: 32px;
+        }
+
+        header h1 {
+            font-size: 48px;
+            line-height: 56px;
+            font-weight: 900;
+            margin-bottom: 16px;
+            color: #111827;
+        }
+
+        header p {
+            font-size: 18px;
+            line-height: 32px;
+            font-weight: 600;
+            color: #6B7280;
+        }
+
+        .section {
+            background: #FFFFFF;
+            border: 2px solid #8B9D83;
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 1px 3px rgba(139, 157, 131, 0.1);
+            transition: opacity 0.4s ease, max-height 0.4s ease;
+            scroll-margin-top: 32px;
+        }
+
+        .section.hidden {
+            display: none;
+        }
+
+        .section h2 {
+            font-size: 24px;
+            line-height: 32px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #111827;
+        }
+
+        .btn {
+            width: 100%;
+            height: 48px;
+            background: #8B9D83;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #6d7d68;
+        }
+
+        .btn:disabled {
+            background: #c7cfc5;
+            color: #596554;
+            cursor: not-allowed;
+        }
+
+        .input,
+        .select,
+        .textarea {
+            width: 100%;
+            background: #FFFFFF;
+            border: 1px solid #8B9D83;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 16px;
+            line-height: 24px;
+            transition: border 0.2s ease;
+        }
+
+        .input:focus,
+        .select:focus,
+        .textarea:focus {
+            outline: none;
+            border: 2px solid #6d7d68;
+            padding: 11px 15px;
+        }
+
+        .textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .label {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #111827;
+        }
+
+        .field {
+            margin-bottom: 24px;
+        }
+
+        .card-result {
+            background: #f6f7f6;
+            border: 1px solid #c7cfc5;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #e3e7e2;
+            color: #343a31;
+            border: 1px solid #8B9D83;
+            border-radius: 4px;
+            padding: 4px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .topic-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #F9FAFB;
+            color: #343a31;
+            border: 2px solid #D1D5DB;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .topic-badge:hover {
+            background: #F3F4F6;
+            border-color: #8B9D83;
+        }
+
+        .topic-badge.selected {
+            background: #e3e7e2;
+            border-color: #8B9D83;
+            color: #111827;
+        }
+
+        .topic-badge .checkbox-icon {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #8B9D83;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .topic-badge.selected .checkbox-icon {
+            background: #8B9D83;
+            color: white;
+        }
+
+        .idea-checkbox-container {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            background: #F9FAFB;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .idea-checkbox-container:hover {
+            background: #F3F4F6;
+            border-color: #8B9D83;
+        }
+
+        .idea-checkbox-container.selected {
+            background: #e3e7e2;
+            border-color: #8B9D83;
+            border-width: 2px;
+            padding: 15px;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #8B9D83;
+            border-radius: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #D1D5DB;
+            border-top-color: #8B9D83;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .alert {
+            background: #F3F4F6;
+            border: 1px solid #6B7280;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .text-sm {
+            font-size: 14px;
+            line-height: 24px;
+        }
+
+        .text-xs {
+            font-size: 12px;
+            line-height: 16px;
+        }
+
+        .mono {
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .final-idea-card {
+            background: #FFFFFF;
+            border: 2px solid #8B9D83;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 4px rgba(139, 157, 131, 0.15);
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .score-box {
+            background: #F9FAFB;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 12px;
+            color: #6B7280;
+            margin-bottom: 4px;
+        }
+
+        .score-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #8B9D83;
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: #8B9D83;
+            color: #FFFFFF;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 20px;
+            margin-right: 16px;
+        }
+
+        .reference-item {
+            background: #F9FAFB;
+            border-left: 3px solid #8B9D83;
+            padding: 12px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            line-height: 18px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .reference-item:hover {
+            background: #F3F4F6;
+            border-left-color: #6d7d68;
+            transform: translateX(4px);
+        }
+
+        .reference-item a:hover div:first-child {
+            color: #8B9D83 !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar - Left Side -->
+    <div class="progress-bar">
+        <div class="progress-steps">
+            <div class="progress-step active" id="progress-step-1">
+                <div class="progress-dot"></div>
+                <div class="progress-label">Profile</div>
+                <div class="progress-line"></div>
+            </div>
+            <div class="progress-step" id="progress-step-2">
+                <div class="progress-dot"></div>
+                <div class="progress-label">Paper</div>
+                <div class="progress-line"></div>
+            </div>
+            <div class="progress-step" id="progress-step-3">
+                <div class="progress-dot"></div>
+                <div class="progress-label">Ideas</div>
+                <div class="progress-line"></div>
+            </div>
+            <div class="progress-step" id="progress-step-4">
+                <div class="progress-dot"></div>
+                <div class="progress-label">Research</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <!-- Header - Bold and Centered -->
+            <header>
+                <h1>Research Trailhead</h1>
+                <p>Turn papers into research opportunities</p>
+            </header>
+
+            <!-- Step 1: User Profile -->
+            <section id="section-1" class="section">
+                <h2>Create Your Profile</h2>
+
+                <div class="field">
+                    <label class="label">Profile Method</label>
+                    <select id="profile-method" class="select" onchange="toggleProfileMethod()">
+                        <option value="manual">Manual Description</option>
+                        <option value="scholar">Google Scholar URL</option>
+                    </select>
+                </div>
+
+                <div id="manual-section">
+                    <div class="field">
+                        <label class="label">Research Description</label>
+                        <textarea
+                            id="profile-description"
+                            class="textarea"
+                            placeholder="Describe your research interests, background, and experience..."
+                        ></textarea>
+                    </div>
+
+                    <div class="field">
+                        <label class="label">Experience Level</label>
+                        <select id="experience-level" class="select">
+                            <option value="" disabled selected>Select...</option>
+                            <option value="Undergraduate Student">Undergraduate Student</option>
+                            <option value="PhD Student">PhD Student</option>
+                            <option value="Academia Researcher">Academia Researcher</option>
+                            <option value="Industry Researcher">Industry Researcher</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="scholar-section" class="hidden">
+                    <div class="field">
+                        <label class="label">Google Scholar URL</label>
+                        <input
+                            type="text"
+                            id="scholar-url"
+                            class="input"
+                            placeholder="https://scholar.google.com/citations?user=..."
+                        >
+                    </div>
+                </div>
+
+                <button onclick="createProfile()" class="btn">Create Profile</button>
+            </section>
+
+            <!-- Step 2: Upload Paper (Hidden initially) -->
+            <section id="section-2" class="section hidden">
+                <h2>Upload Paper</h2>
+
+                <div class="field">
+                    <label class="label">PDF File</label>
+                    <input
+                        type="file"
+                        id="pdf-file"
+                        accept=".pdf"
+                        class="input"
+                    >
+                </div>
+
+                <div class="field">
+                    <label class="label">Select Research Topics</label>
+                    <p class="text-xs" style="color: #6B7280; margin-bottom: 8px;">Click to select/deselect topics from your profile</p>
+                    <div id="auto-topics" style="min-height: 40px;">
+                        <span class="text-sm" style="color: #6B7280;">Topics will appear here after profile creation</span>
+                    </div>
+                    <div id="selected-count" style="margin-top: 8px; font-size: 14px; color: #8B9D83; font-weight: 600;"></div>
+                </div>
+
+                <div class="field">
+                    <label class="label">Additional Topics (Optional)</label>
+                    <input
+                        type="text"
+                        id="manual-topics"
+                        class="input"
+                        placeholder="Graph Neural Networks, Attention Mechanisms, ..."
+                    >
+                    <p class="text-xs" style="color: #6B7280; margin-top: 8px;">Comma-separated list of additional topics</p>
+                </div>
+
+                <button onclick="uploadAndAnalyze()" class="btn" id="upload-btn">Upload & Analyze</button>
+
+                <div id="upload-status" class="alert hidden">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="loading"></span>
+                        <span id="status-text" class="text-sm" style="font-weight: 600;"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 3: Quick Read Results (Hidden initially) -->
+            <section id="section-3" class="section hidden">
+                <h2>Quick Read Results</h2>
+
+                <div style="margin-bottom: 24px;">
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 12px;">Paper Summary</h3>
+                    <div id="paper-summary" class="card-result text-sm"></div>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 12px;">Key Concepts</h3>
+                    <div id="concepts-list"></div>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 12px;">Research Ideas (Select 3)</h3>
+                    <div id="ideas-list"></div>
+                </div>
+
+                <button onclick="researchSelectedIdeas()" class="btn" id="research-btn" disabled>
+                    Research Selected Ideas
+                </button>
+
+                <div id="research-status" class="alert hidden">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="loading"></span>
+                        <span class="text-sm" style="font-weight: 600;">Deep research in progress...</span>
+                    </div>
+                    <p class="text-xs" style="color: #6B7280; margin-top: 8px;">This may up to 5 minutes</p>
+                </div>
+            </section>
+
+            <!-- Step 4: Final Results (Hidden initially) -->
+            <section id="section-4" class="section hidden">
+                <h2>Final Ranked Ideas</h2>
+                <div id="final-ideas-list"></div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentUserId = null;
+        let currentJobId = null;
+        let currentStep = 1;
+        let allIdeas = [];
+        let selectedIdeas = [];
+
+        // API base URL
+        const API_BASE = 'http://localhost:5001';
+
+        // Update progress bar
+        function updateProgressBar(step) {
+            for (let i = 1; i <= 4; i++) {
+                const stepElement = document.getElementById(`progress-step-${i}`);
+                const lineElement = stepElement.querySelector('.progress-line');
+                
+                stepElement.classList.remove('active', 'completed');
+                
+                if (i < step) {
+                    stepElement.classList.add('completed');
+                    // Make line more visible for completed steps
+                    if (lineElement) {
+                        lineElement.style.background = 'rgba(139, 157, 131, 0.3)';
+                    }
+                } else if (i === step) {
+                    stepElement.classList.add('active');
+                    // Make line leading to active step more visible
+                    if (lineElement) {
+                        lineElement.style.background = 'rgba(139, 157, 131, 0.4)';
+                    }
+                } else {
+                    // Inactive step - very transparent line
+                    if (lineElement) {
+                        lineElement.style.background = 'rgba(139, 157, 131, 0.08)';
+                    }
+                }
+            }
+        }
+
+        // Reveal next section with smooth scroll
+        function revealNextSection(sectionNumber) {
+            currentStep = sectionNumber;
+            updateProgressBar(sectionNumber);
+            
+            const section = document.getElementById(`section-${sectionNumber}`);
+
+            if (section) {
+                section.classList.remove('hidden');
+                section.classList.add('fade-in');
+
+                setTimeout(() => {
+                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Update progress bar after scroll completes
+                    setTimeout(() => {
+                        updateProgressBar(sectionNumber);
+                    }, 500);
+                }, 100);
+            }
+        }
+
+        // Toggle profile method
+        function toggleProfileMethod() {
+            const method = document.getElementById('profile-method').value;
+            const manualSection = document.getElementById('manual-section');
+            const scholarSection = document.getElementById('scholar-section');
+
+            if (method === 'manual') {
+                manualSection.classList.remove('hidden');
+                scholarSection.classList.add('hidden');
+            } else {
+                manualSection.classList.add('hidden');
+                scholarSection.classList.remove('hidden');
+            }
+        }
+
+        // Step 1: Create Profile
+        async function createProfile() {
+            const method = document.getElementById('profile-method').value;
+            let payload = { method };
+
+            if (method === 'manual') {
+                const description = document.getElementById('profile-description').value.trim();
+                const experienceLevel = document.getElementById('experience-level').value;
+
+                if (!description) {
+                    showError('Please enter a research description');
+                    return;
+                }
+
+                if (!experienceLevel) {
+                    showError('Please select your experience level');
+                    return;
+                }
+
+                payload.description = description;
+                payload.experience_level = experienceLevel;
+            } else {
+                const scholarUrl = document.getElementById('scholar-url').value.trim();
+                if (!scholarUrl) {
+                    showError('Please enter a Google Scholar URL');
+                    return;
+                }
+                payload.google_scholar_url = scholarUrl;
+            }
+
+            // Show loading state
+            const createBtn = document.querySelector('#section-1 .btn');
+            const originalBtnText = createBtn.textContent;
+            createBtn.disabled = true;
+            createBtn.innerHTML = '<span class="loading"></span> <span style="margin-left: 8px;">Creating Profile...</span>';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/users/profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentUserId = data.user_id;
+
+                    // Auto-generate topics from profile
+                    displayAutoTopics(data.profile);
+
+                    // Restore button
+                    createBtn.disabled = false;
+                    createBtn.textContent = originalBtnText;
+
+                    // Mark step 1 as completed and move to step 2
+                    updateProgressBar(2);
+                    revealNextSection(2);
+                } else {
+                    showError(data.error || 'Failed to create profile');
+                    createBtn.disabled = false;
+                    createBtn.textContent = originalBtnText;
+                }
+            } catch (error) {
+                showError(`Error: ${error.message}`);
+                createBtn.disabled = false;
+                createBtn.textContent = originalBtnText;
+            }
+        }
+
+        // Track selected topics
+        let selectedTopics = new Set();
+
+        // Helper function to capitalize first letter of every word
+        function capitalizeWords(str) {
+            return str.split(' ').map(word =>
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            ).join(' ');
+        }
+
+        // Display auto-detected topics with checkboxes
+        function displayAutoTopics(profile) {
+            const autoTopicsDiv = document.getElementById('auto-topics');
+            autoTopicsDiv.innerHTML = '';
+
+            const topics = [
+                ...(profile.research_areas || []),
+                ...(profile.specific_topics || []).slice(0, 3)
+            ];
+
+            if (topics.length === 0) {
+                autoTopicsDiv.innerHTML = '<span class="text-sm" style="color: #6B7280;">No topics detected</span>';
+                return;
+            }
+
+            // Select all topics by default
+            selectedTopics = new Set(topics);
+
+            topics.forEach(topic => {
+                const badge = document.createElement('div');
+                badge.className = 'topic-badge selected';
+                badge.onclick = () => toggleTopicSelection(topic, badge);
+
+                badge.innerHTML = `
+                    <div class="checkbox-icon">✓</div>
+                    <span>${capitalizeWords(topic)}</span>
+                `;
+
+                autoTopicsDiv.appendChild(badge);
+            });
+
+            updateSelectedCount();
+        }
+
+        // Toggle topic selection
+        function toggleTopicSelection(topic, badgeElement) {
+            if (selectedTopics.has(topic)) {
+                selectedTopics.delete(topic);
+                badgeElement.classList.remove('selected');
+                badgeElement.querySelector('.checkbox-icon').textContent = '';
+            } else {
+                selectedTopics.add(topic);
+                badgeElement.classList.add('selected');
+                badgeElement.querySelector('.checkbox-icon').textContent = '✓';
+            }
+            updateSelectedCount();
+        }
+
+        // Update selected count display
+        function updateSelectedCount() {
+            const countDiv = document.getElementById('selected-count');
+            const count = selectedTopics.size;
+            if (count > 0) {
+                countDiv.textContent = `${count} topic${count !== 1 ? 's' : ''} selected`;
+            } else {
+                countDiv.textContent = '';
+            }
+        }
+
+        // Get all topics (selected auto topics + manual)
+        function getAllTopics() {
+            // Get selected topics from checkboxes
+            const autoTopics = Array.from(selectedTopics);
+
+            // Get manual topics from text input
+            const manualTopicsInput = document.getElementById('manual-topics').value;
+            const manualTopics = manualTopicsInput
+                ? manualTopicsInput.split(',').map(t => t.trim()).filter(t => t)
+                : [];
+
+            // Combine and deduplicate
+            return [...new Set([...autoTopics, ...manualTopics])];
+        }
+
+        // Step 2: Upload and Analyze
+        async function uploadAndAnalyze() {
+            const fileInput = document.getElementById('pdf-file');
+
+            if (!currentUserId) {
+                showError('Please create a profile first');
+                return;
+            }
+
+            if (!fileInput.files[0]) {
+                showError('Please select a PDF file');
+                return;
+            }
+
+            const topics = getAllTopics();
+            if (topics.length === 0) {
+                showError('No topics available. Please create a profile or add manual topics.');
+                return;
+            }
+
+            // Show loading state on button
+            const uploadBtn = document.getElementById('upload-btn');
+            const originalUploadBtnText = uploadBtn.textContent;
+            uploadBtn.disabled = true;
+            uploadBtn.innerHTML = '<span class="loading"></span> <span style="margin-left: 8px;">Uploading & Analyzing (This may take up to 2 minutes)</span>';
+
+            try {
+                // Upload PDF
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('user_id', currentUserId);
+
+                const uploadResponse = await fetch(`${API_BASE}/api/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const uploadData = await uploadResponse.json();
+
+                if (!uploadResponse.ok) {
+                    throw new Error(uploadData.error || 'Upload failed');
+                }
+
+                currentJobId = uploadData.job_id;
+
+                // Start quick read
+                const analyzeResponse = await fetch(`${API_BASE}/api/analyze/read`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: currentJobId,
+                        topics: topics
+                    })
+                });
+
+                const analyzeData = await analyzeResponse.json();
+
+                if (!analyzeResponse.ok) {
+                    throw new Error(analyzeData.error || 'Analysis failed');
+                }
+
+                // Display results
+                displayQuickReadResults(analyzeData);
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = originalUploadBtnText;
+
+                // Mark step 2 as completed and move to step 3
+                updateProgressBar(3);
+                revealNextSection(3);
+
+            } catch (error) {
+                showError(`Error: ${error.message}`);
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = originalUploadBtnText;
+            }
+        }
+
+        // Display Quick Read Results
+        function displayQuickReadResults(data) {
+            // Summary
+            document.getElementById('paper-summary').textContent = data.summary || 'No summary available';
+
+            // Concepts - structured display
+            const conceptsList = document.getElementById('concepts-list');
+            conceptsList.innerHTML = '';
+
+            const concepts = data.concepts || [];
+            if (concepts.length > 0) {
+                // Create a card-based structure
+                const conceptCard = document.createElement('div');
+                conceptCard.className = 'card-result';
+                conceptCard.style.padding = '16px';
+
+                // Group concepts (first half as "Core Concepts", second half as "Related Topics")
+                const midPoint = Math.ceil(concepts.length / 2);
+                const coreConcepts = concepts.slice(0, midPoint);
+                const relatedTopics = concepts.slice(midPoint);
+
+                let html = '';
+
+                // Core Concepts section
+                if (coreConcepts.length > 0) {
+                    html += '<div style="margin-bottom: 16px;">';
+                    html += '<div style="font-weight: 600; font-size: 14px; color: #6B7280; margin-bottom: 8px;">Core Concepts</div>';
+                    html += '<div>';
+                    coreConcepts.forEach(concept => {
+                        html += `<span class="badge" style="background: #e3e7e2; border-color: #8B9D83;">${capitalizeWords(concept)}</span>`;
+                    });
+                    html += '</div></div>';
+                }
+
+                // Related Topics section
+                if (relatedTopics.length > 0) {
+                    html += '<div>';
+                    html += '<div style="font-weight: 600; font-size: 14px; color: #6B7280; margin-bottom: 8px;">Related Topics</div>';
+                    html += '<div>';
+                    relatedTopics.forEach(concept => {
+                        html += `<span class="badge" style="background: #F9FAFB; border-color: #D1D5DB;">${capitalizeWords(concept)}</span>`;
+                    });
+                    html += '</div></div>';
+                }
+
+                conceptCard.innerHTML = html;
+                conceptsList.appendChild(conceptCard);
+            } else {
+                conceptsList.innerHTML = '<p class="text-sm" style="color: #6B7280;">No concepts identified</p>';
+            }
+
+            // Ideas
+            allIdeas = data.ideas || [];
+            const ideasList = document.getElementById('ideas-list');
+            ideasList.innerHTML = '';
+
+            allIdeas.forEach((idea, index) => {
+                const container = document.createElement('div');
+                container.className = 'idea-checkbox-container';
+                container.onclick = () => toggleIdeaSelection(index);
+
+                container.innerHTML = `
+                    <input type="checkbox" id="idea-${index}" class="checkbox" onclick="event.stopPropagation();" onchange="toggleIdeaSelection(${index})">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; margin-bottom: 8px;">${idea.title || `Idea ${index + 1}`}</div>
+                        <div class="text-sm" style="color: #374151;">${idea.description || ''}</div>
+                    </div>
+                `;
+
+                ideasList.appendChild(container);
+            });
+        }
+
+        // Toggle idea selection
+        function toggleIdeaSelection(index) {
+            const checkbox = document.getElementById(`idea-${index}`);
+            checkbox.checked = !checkbox.checked;
+
+            updateIdeaSelection();
+        }
+
+        // Update idea selection
+        function updateIdeaSelection() {
+            selectedIdeas = [];
+
+            allIdeas.forEach((idea, index) => {
+                const checkbox = document.getElementById(`idea-${index}`);
+                const container = checkbox.closest('.idea-checkbox-container');
+
+                if (checkbox.checked) {
+                    selectedIdeas.push(index);
+                    container.classList.add('selected');
+                } else {
+                    container.classList.remove('selected');
+                }
+            });
+
+            // Enforce 3-idea limit
+            if (selectedIdeas.length > 3) {
+                const lastIndex = selectedIdeas[selectedIdeas.length - 1];
+                const lastCheckbox = document.getElementById(`idea-${lastIndex}`);
+                lastCheckbox.checked = false;
+                lastCheckbox.closest('.idea-checkbox-container').classList.remove('selected');
+                selectedIdeas.pop();
+                showError('Please select exactly 3 ideas');
+            }
+
+            // Enable/disable research button
+            const researchBtn = document.getElementById('research-btn');
+            researchBtn.disabled = selectedIdeas.length !== 3;
+        }
+
+        // Research Selected Ideas
+        async function researchSelectedIdeas() {
+            if (selectedIdeas.length !== 3) {
+                showError('Please select exactly 3 ideas');
+                return;
+            }
+
+            // Show loading state on button
+            const researchBtn = document.getElementById('research-btn');
+            const originalResearchBtnText = researchBtn.textContent;
+            researchBtn.disabled = true;
+            researchBtn.innerHTML = '<span class="loading"></span> <span style="margin-left: 8px;">Researching (This may take up to 5 minutes)</span>';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/analyze/search`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_id: currentJobId,
+                        selected_ideas: selectedIdeas
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Research failed');
+                }
+
+                // Display final results
+                displayFinalResults(data.top_ideas);
+                researchBtn.disabled = false;
+                researchBtn.textContent = originalResearchBtnText;
+
+                // Mark step 3 as completed and move to step 4
+                updateProgressBar(4);
+                revealNextSection(4);
+
+            } catch (error) {
+                showError(`Error: ${error.message}`);
+                researchBtn.disabled = false;
+                researchBtn.textContent = originalResearchBtnText;
+            }
+        }
+
+        // Display Final Results
+        function displayFinalResults(topIdeas) {
+            console.log('=== FINAL IDEAS DATA ===');
+            console.log('Number of ideas:', topIdeas.length);
+            topIdeas.forEach((idea, idx) => {
+                console.log(`\nIdea ${idx + 1}:`, idea.title);
+                console.log('  - references:', idea.references?.length || 0);
+                console.log('  - literature_synthesis.papers:', idea.literature_synthesis?.papers?.length || 0);
+                console.log('  - Full idea object:', idea);
+            });
+            console.log('=======================');
+
+            const finalList = document.getElementById('final-ideas-list');
+            finalList.innerHTML = '';
+
+            topIdeas.forEach((idea, index) => {
+                const card = document.createElement('div');
+                card.className = 'final-idea-card fade-in';
+
+                const refs = idea.references || idea.literature_synthesis?.papers || [];
+                const refHtml = refs.length > 0
+                    ? refs.slice(0, 5).map(ref => `
+                        <div class="reference-item">
+                            <a href="${ref.url || '#'}" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit;">
+                                <div style="font-weight: 600; margin-bottom: 4px; color: #111827; transition: color 0.2s ease;">
+                                    ${ref.title || 'No title'}
+                                </div>
+                                <div class="text-xs" style="color: #6B7280;">
+                                    ${ref.year || 'N/A'}${ref.authors && ref.authors.length > 0 ? ' • ' + ref.authors.slice(0, 3).join(', ') : ''}
+                                </div>
+                            </a>
+                        </div>
+                    `).join('')
+                    : '<p class="text-sm" style="color: #6B7280;">No references available</p>';
+
+                card.innerHTML = `
+                    <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                        <span class="rank-badge">${index + 1}</span>
+                        <h3 style="margin: 0; flex: 1; font-size: 20px; font-weight: 700;">${idea.title}</h3>
+                        <div style="background: #8B9D83; color: #FFFFFF; padding: 8px 16px; border-radius: 8px; font-weight: 700;">
+                            ${(idea.composite_score * 2).toFixed(1)}/10
+                        </div>
+                    </div>
+
+                    <p class="text-sm" style="margin-bottom: 16px; color: #374151;">${idea.description}</p>
+
+                    <div class="score-grid">
+                        <div class="score-box">
+                            <div class="score-label">Novelty</div>
+                            <div class="score-value">${(idea.novelty_score * 2).toFixed(1)}/10</div>
+                            <div class="text-xs" style="color: #6B7280; margin-top: 8px; line-height: 1.4;">
+                                Based on gap analysis from ${idea.references?.length || 0} reference papers
+                            </div>
+                        </div>
+                        <div class="score-box">
+                            <div class="score-label">Doability</div>
+                            <div class="score-value">${(idea.doability_score * 2).toFixed(1)}/10</div>
+                            <div class="text-xs" style="color: #6B7280; margin-top: 8px; line-height: 1.4;">
+                                Based on methodology & resource analysis
+                            </div>
+                        </div>
+                        <div class="score-box">
+                            <div class="score-label">Topic Match</div>
+                            <div class="score-value">${(idea.topic_match_score * 2).toFixed(1)}/10</div>
+                            <div class="text-xs" style="color: #6B7280; margin-top: 8px; line-height: 1.4;">
+                                Alignment with your research profile
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-result" style="margin-bottom: 16px;">
+                        <div style="font-weight: 600; margin-bottom: 8px;">Rationale</div>
+                        <p class="text-sm">${idea.rationale || 'N/A'}</p>
+                    </div>
+
+                    <div>
+                        <div style="font-weight: 700; margin-bottom: 12px;">Key References</div>
+                        ${refHtml}
+                    </div>
+                `;
+
+                finalList.appendChild(card);
+            });
+        }
+
+        // Error handling
+        function showError(message) {
+            alert(message);
+        }
+
+        // Scroll-based progress bar highlighting
+        function initScrollBasedProgress() {
+            const allSections = [
+                document.getElementById('section-1'),
+                document.getElementById('section-2'),
+                document.getElementById('section-3'),
+                document.getElementById('section-4')
+            ].filter(section => section !== null);
+
+            function getActiveSection() {
+                const visibleSections = allSections.filter(section => !section.classList.contains('hidden'));
+                
+                if (visibleSections.length === 0) return 1;
+
+                let activeSectionIndex = 1;
+                let minDistance = Infinity;
+                const viewportTop = window.scrollY + window.innerHeight * 0.2; // Consider upper 20% of viewport
+
+                visibleSections.forEach((section) => {
+                    // Get the actual section number from the element's ID
+                    const sectionMatch = section.id.match(/section-(\d+)/);
+                    if (!sectionMatch) return;
+                    
+                    const sectionNum = parseInt(sectionMatch[1]);
+                    const rect = section.getBoundingClientRect();
+                    const sectionTop = rect.top + window.scrollY;
+                    const sectionBottom = sectionTop + rect.height;
+                    
+                    // Check if section is in the viewport's upper portion
+                    if (sectionTop <= viewportTop && sectionBottom >= viewportTop) {
+                        const distance = Math.abs(sectionTop - viewportTop);
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            activeSectionIndex = sectionNum;
+                        }
+                    } else if (sectionTop < viewportTop && sectionBottom > window.scrollY) {
+                        // Section is partially visible above the trigger point
+                        const distance = viewportTop - sectionBottom;
+                        if (distance < minDistance && distance >= -rect.height * 0.5) {
+                            minDistance = distance;
+                            activeSectionIndex = sectionNum;
+                        }
+                    }
+                });
+
+                // Fallback: find the section closest to the top of viewport
+                if (minDistance === Infinity) {
+                    visibleSections.forEach((section) => {
+                        const sectionMatch = section.id.match(/section-(\d+)/);
+                        if (!sectionMatch) return;
+                        
+                        const sectionNum = parseInt(sectionMatch[1]);
+                        const rect = section.getBoundingClientRect();
+                        const distance = Math.abs(rect.top);
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            activeSectionIndex = sectionNum;
+                        }
+                    });
+                }
+
+                return activeSectionIndex;
+            }
+
+            function updateProgressOnScroll() {
+                const activeSectionIndex = getActiveSection();
+                updateProgressBar(activeSectionIndex);
+                currentStep = activeSectionIndex;
+            }
+
+            // Use Intersection Observer for efficient detection
+            const observerOptions = {
+                root: null,
+                rootMargin: '-10% 0px -70% 0px',
+                threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                // Find the entry with the highest intersection ratio in the trigger zone
+                let maxRatio = 0;
+                let activeIndex = 1;
+
+                entries.forEach(entry => {
+                    if (!entry.target.classList.contains('hidden')) {
+                        const sectionMatch = entry.target.id.match(/section-(\d+)/);
+                        if (sectionMatch) {
+                            const sectionNum = parseInt(sectionMatch[1]);
+                            if (entry.intersectionRatio > maxRatio) {
+                                maxRatio = entry.intersectionRatio;
+                                activeIndex = sectionNum;
+                            }
+                        }
+                    }
+                });
+
+                if (maxRatio > 0) {
+                    updateProgressBar(activeIndex);
+                    currentStep = activeIndex;
+                }
+            }, observerOptions);
+
+            // Observe all sections
+            allSections.forEach(section => {
+                if (section) {
+                    observer.observe(section);
+                }
+            });
+
+            // Also handle scroll events for more responsive updates
+            let scrollTimeout;
+            let isScrolling = false;
+            window.addEventListener('scroll', () => {
+                if (!isScrolling) {
+                    isScrolling = true;
+                    updateProgressOnScroll();
+                }
+                
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    isScrolling = false;
+                    updateProgressOnScroll();
+                }, 100);
+            }, { passive: true });
+
+            // Initial update
+            updateProgressOnScroll();
+        }
+
+        // Initialize progress bar
+        updateProgressBar(1);
+
+        // Initialize scroll-based progress highlighting when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initScrollBasedProgress);
+        } else {
+            initScrollBasedProgress();
+        }
+    </script>
+</body>
+</html>
+
